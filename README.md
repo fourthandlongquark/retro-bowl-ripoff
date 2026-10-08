@@ -36,7 +36,8 @@ To put it online, turn on GitHub Pages for this repo (Settings → Pages → dep
 - Slingshot passing: drag back to aim, pull further to throw further, with a live arc and yard count
 - Player levels from 1 to 100, built from ratings that change how the game plays: arm strength, accuracy, speed, strength, catching, diving, dodging, blocking
 - An animation bank of 20 poses, drawn in code: run, backpedal, dropback, throw, catch, block, juke, dive, slide, tackle, fall, celebrate, kick and more
-- Playable defense: control one defender, switch to the nearest, dive to tackle, pick off passes (or set defense to auto)
+- Playable defense on Hard and Legend: control one defender, switch to the nearest, dive to tackle, pick off passes. On Easy and Normal the defense plays itself
+- Press `G` after a big play to celebrate
 - Career mode: 12 teams, an 11-game season, a four-team playoff and the Pixel Bowl
 - XP, level-ups and skill points, free agents, facility upgrades, a rookie draft, aging and retirement
 - Day, night, snow and rain games
