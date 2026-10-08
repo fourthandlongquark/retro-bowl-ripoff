@@ -24,6 +24,8 @@ button.go{background:var(--gold);color:#241800;border-color:#b98500}
 button.sm{font-size:9px;padding:6px 8px}
 button small{display:block;font-family:var(--body);font-size:16px;color:var(--gold);text-transform:none;margin-top:4px}
 button:disabled{opacity:.4;cursor:not-allowed}
+input{font-family:var(--body);font-size:21px;background:var(--panel2);color:var(--ink);border:2px solid var(--line);padding:4px 8px;width:11em;max-width:100%}
+input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 select{font-family:var(--body);font-size:21px;background:var(--panel2);color:var(--ink);border:2px solid var(--line);padding:4px 8px}
 h2{font-family:var(--display);font-size:13px;color:var(--gold);margin:0 0 10px;text-wrap:balance;line-height:1.5}
 h3{font-family:var(--display);font-size:10px;color:var(--dim);margin:0 0 8px;letter-spacing:1px;line-height:1.5}
@@ -77,8 +79,9 @@ ul{margin:0;padding-left:20px}
   <section id="title" class="col">
     <canvas id="tcv" width="480" height="270" aria-label="Game preview"></canvas>
     <div class="row">
-      <button id="btnContinue" class="go" hidden>Continue career</button>
-      <button id="btnNew" class="go">New career</button><span class="dim" id="saveNote"></span>
+      <button id="btnNew" class="go">New career</button>
+    </div>
+    <div class="panel col" id="savesBox" hidden><h2>Saved careers on this device</h2><div class="col" id="saves"></div>
     </div>
     <div class="panel col">
       <h2>How it plays</h2>
@@ -95,6 +98,7 @@ ul{margin:0;padding-left:20px}
   <section id="pick" class="col" hidden>
     <div class="panel col">
       <h2>Pick your franchise</h2>
+      <div class="row"><label for="coach">Your name</label><input id="coach" maxlength="14" placeholder="Coach" autocomplete="off"><span class="dim" id="nameMsg">Each name gets its own save.</span></div>
       <div class="row"><label for="diff">Difficulty</label>
         <select id="diff"><option value="0">Easy (defense plays itself)</option><option value="1" selected>Normal (defense plays itself)</option><option value="2">Hard (you play defense too)</option><option value="3">Legend (hardest, you play defense)</option></select></div>
       <div class="teams" id="teamGrid"></div>
@@ -234,8 +238,13 @@ const SFX={snap:()=>beep(200,.06),thr:()=>beep(540,.2,'triangle',.06,-280),cat:(
 /* ---------- career model ---------- */
 const KEY='fourth_long_career_v2';
 let C=null,uidN=1;
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(C))}catch(e){}};
-const load=()=>{try{const s=localStorage.getItem(KEY);return s?JSON.parse(s):null}catch(e){return null}};
+const PKEY='fourth_long_profiles_v1';
+const profiles=()=>{try{const a=JSON.parse(localStorage.getItem(PKEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return []}};
+const setProfiles=a=>{try{localStorage.setItem(PKEY,JSON.stringify(a))}catch(e){}};
+const save=()=>{if(!C)return;try{localStorage.setItem(KEY+':'+C.name,JSON.stringify(C));const a=profiles();if(!a.includes(C.name)){a.push(C.name);setProfiles(a);}}catch(e){}};
+const load=n=>{try{const s=localStorage.getItem(KEY+':'+n);return s?JSON.parse(s):null}catch(e){return null}};
+const wipe=n=>{try{localStorage.removeItem(KEY+':'+n);}catch(e){}setProfiles(profiles().filter(x=>x!==n));};
+try{const old=localStorage.getItem(KEY);if(old){const o=JSON.parse(old);o.name=o.name||'Coach';localStorage.setItem(KEY+':'+o.name,JSON.stringify(o));const a=profiles();if(!a.includes(o.name)){a.push(o.name);setProfiles(a);}localStorage.removeItem(KEY);}}catch(e){}
 function mkPlayer(pos,base,age){const a={};POS[pos].forEach(k=>a[k]=clamp(Math.round((base+rnd(-1.5,1.5))*10),1,99));
   const mx=Math.max(...Object.values(a));
   return {id:'p'+Date.now().toString(36)+(uidN++),name:pick(FN)+' '+pick(LN),pos,age:age||ri(22,30),a,xp:0,lvl:1,sp:0,pot:clamp(Math.max(mx,Math.round((base+rnd(1,3.5))*10)),40,100),num:ri(1,99),skin:ri(0,3),st:{}};}
@@ -252,8 +261,8 @@ const faCost=p=>Math.max(2,Math.round(Math.pow(Math.max(0,ovr(p)-40),2)/120));
 const fans=()=>C.fac.fans||0;
 const cash=n=>'$'+(n*50)+'K';
 const FANS=['Half-empty stands','Local regulars','Loud home crowd','Sellout crowd','Rowdy sellout','Famous fan base'];
-function newCareer(team,diff){
-  C={team,diff,season:1,week:0,phase:'season',credits:4,fac:{train:0,stad:0},titles:0,hist:[],
+function newCareer(team,diff,name){
+  C={name,team,diff,season:1,week:0,phase:'season',credits:4,fac:{train:0,stad:0},titles:0,hist:[],
      teams:TEAMS.map(()=>({off:ri(52,82),def:ri(52,82),w:0,l:0,t:0,pf:0,pa:0})),
      sched:mkSchedule(TEAMS.length),res:[],roster:SLOTS.map(p=>mkPlayer(p,rnd(5.4,6.8))),fa:[],po:null,draft:null};
   refreshFA();save();}
@@ -503,7 +512,7 @@ function intercept(d){G.ball.vis=false;d.hasBall=true;setAnim(d,pick(['celebrate
 function tryTackle(d,c){
   if(c.diveT>0||d.tkCd>0)return;
   if(c.freeJ>0&&!(c.jukeT>0)&&Math.random()<.35-DK()){c.freeJ=0;c.jukeT=.25;c.autoJ=false;setAnim(c,'juke',.25);SFX.juke();}else if(c.freeJ>0)c.freeJ=0;
-  if(c.jukeT>0&&!(c.autoJ&&Math.random()<(G.side==='def'?.4:(c.ajN||0)>1+Math.floor((c.p.g.DOD||5)/3.5)?.85:.4))){d.downT=1.1;d.tkCd=1.4;setAnim(d,'fall',1.1);float('JUKED!',d.x,d.y-20,'#ffd23f');return;}
+  if(c.jukeT>0&&!(c.autoJ&&Math.random()<((c.ajN||0)>1+Math.floor((c.p.g.DOD||5)/3.5)?.85:.4))){d.downT=1.1;d.tkCd=1.4;setAnim(d,'fall',1.1);float('JUKED!',d.x,d.y-20,'#ffd23f');return;}
   if(G.phase==='run'&&(c.brk||0)<2&&Math.random()<clamp(((c.p&&c.p.g.STR||5)-3)*.045-DK()*.4,0,.32)){c.brk=(c.brk||0)+1;d.downT=.9;d.tkCd=1.3;setAnim(d,'fall',.9);c.slowT=.35;float('BROKEN TACKLE',c.x,c.y-22,'#ffd23f');SFX.hit();return;}
   G.lastTk=d;setAnim(d,'tackle',3);d.face=c.x>=d.x?1:-1;setAnim(c,'down',3);G.cam.sh=.25;SFX.hit();
   puff(c.x,c.y,10,G.weather==='snow'?['#fff','#dfe9ec']:['#3fbf5e','#1e7b3c','#6b4a2a']);
@@ -658,13 +667,13 @@ function updateLive(dt){
   if(def){
     if(uSw)switchCtl();
     if(G.phase==='pocket'&&(G.pt>G.aiT||nearestDef(qb,true).dist<15&&G.pt>.7)){let b=null,bs=-1e9;G.recs.forEach(r=>{const sc=nearestDef(r,false).dist+rnd(0,12)+(r.x>L?6:0);if(sc>bs){bs=sc;b=r;}});G.aiT=G.pt+.35;if(b)leadThrow(b);}
-    if(car){const nd=nearestDef({x:car.x+14,y:car.y},true);let dy=0;if(nd.d&&nd.dist<46&&nd.d.x>car.x-6)dy=(car.y>=nd.d.y?1:-1)*.75;if(car.y<FT+14)dy=.5;if(car.y>FB-14)dy=-.5;const m=Math.hypot(1,dy);mv={x:1/m,y:dy/m};if(nd.dist<11&&Math.random()<dt*.5)juke=true;}
+    if(car){const nd=nearestDef({x:car.x+14,y:car.y},true);let dy=0;if(nd.d&&nd.dist<46&&nd.d.x>car.x-6)dy=(car.y>=nd.d.y?1:-1)*.75;if(car.y<FT+14)dy=.5;if(car.y>FB-14)dy=-.5;const m=Math.hypot(1,dy);mv={x:1/m,y:dy/m};}
   }
   if(car){
     if(car.diveT>0){car.diveT-=dt;car.vx=car.spd*(car.sliding?.9:1.5);car.vy=0;if(car.diveT<=0){car.x+=0;return endPlay(car.sliding?'slide':'dive');}}
     else{
       if(dive){car.diveT=.2+(car.p.g.DIV||5)*.022;car.sliding=car===qb;setAnim(car,car.sliding?'slide':'dive',3);car.face=1;SFX.juke();}
-      else{const aj=autoJuke&&!def&&!juke&&nearestDef(car,true).dist<12;if((juke||aj)&&(car.jukeCd||0)<=0){car.autoJ=aj||def;car.jukeT=.18+(car.p.g.DOD||5)*.026;car.jukeCd=1.7-(car.p.g.DOD||5)*.09;const nd=nearestDef(car,true).d;const dir=mv.y?Math.sign(mv.y):(nd&&nd.y>car.y?-1:1);car.vy=(car.y<FT+24?1:car.y>FB-24?-1:dir)*(aj?55:75);if(aj)car.ajN=(car.ajN||0)+1;setAnim(car,'juke',.3);SFX.juke();}
+      else{const aj=(autoJuke||def)&&!juke&&nearestDef(car,true).dist<12;if((juke||aj)&&(car.jukeCd||0)<=0){car.autoJ=aj;car.jukeT=.18+(car.p.g.DOD||5)*.026;car.jukeCd=1.7-(car.p.g.DOD||5)*.09;const nd=nearestDef(car,true).d;const dir=mv.y?Math.sign(mv.y):(nd&&nd.y>car.y?-1:1);car.vy=(car.y<FT+24?1:car.y>FB-24?-1:dir)*(aj?55:75);if(aj)car.ajN=(car.ajN||0)+1;setAnim(car,'juke',.3);SFX.juke();}
         let dx=mv.x,dy=mv.y;if(!dx&&!dy){if(P.dirAbs&&G.pt<P.dirAbs[2]+.5){dx=P.dirAbs[0];dy=P.dirAbs[1];}else if(P.dir&&G.pt<P.dir[2]){dx=P.dir[0];dy=-P.dir[1]*G.sweepDir;}else{dx=1;dy=0;}}
         const s=car.spd*.9*(car.strideT>0?1.2:1)*(car.slowT>0?.5:1)*(car.jukeT>0?.75:1);if(!(car.jukeT>0))steer(car,dx*s,dy*s*.8,dt);else steer(car,dx*s,car.vy,dt*.3);}
     }
@@ -894,7 +903,7 @@ $('#muteBtn').addEventListener('click',()=>{muted=!muted;$('#muteBtn').textConte
 
 /* ---------- screens ---------- */
 const SCREENS=['title','pick','hub','game','post','off'];
-function show(id){SCREENS.forEach(s=>{$('#'+s).hidden=s!==id;});window.scrollTo(0,0);if(id==='title')mkDemo();}
+function show(id){SCREENS.forEach(s=>{$('#'+s).hidden=s!==id;});window.scrollTo(0,0);if(id==='title'){mkDemo();renderSaves();}}
 function demoRoster(){const o={};['QB','RB','WR1','WR2','TE','OL','K','DL','LB','CB','S'].forEach(k=>o[k]=mkPlayer(k.replace(/\d/,''),6));return o;}
 let demoG=null;
 function mkDemo(){const keep=G;const a=ri(0,TEAMS.length-1);let b=ri(0,TEAMS.length-1);if(b===a)b=(a+1)%TEAMS.length;
@@ -902,10 +911,12 @@ function mkDemo(){const keep=G;const a=ri(0,TEAMS.length-1);let b=ri(0,TEAMS.len
 let demoField=null,demoCrowd=null;
 function teamBtn(t,i){return `<button data-team="${i}"><span class="sw"><i style="background:${t.c2}"></i><i style="background:${t.c1}"></i><i style="background:${t.c3}"></i></span><span>${esc(t.city)}</span><span class="gold">${esc(t.name)}</span></button>`;}
 $('#teamGrid').innerHTML=TEAMS.map(teamBtn).join('');
-$('#teamGrid').addEventListener('click',ev=>{const b=ev.target.closest('[data-team]');if(!b)return;SFX.ui();newCareer(+b.dataset.team,+$('#diff').value);hubTab='home';renderHub();show('hub');});
+$('#teamGrid').addEventListener('click',ev=>{const b=ev.target.closest('[data-team]');if(!b)return;SFX.ui();let nm=($('#coach').value||'').trim().replace(/[^\w \-]/g,'').slice(0,14)||'Coach';if(profiles().includes(nm)&&load(nm)){let i=2;while(profiles().includes(nm+' '+i))i++;nm=nm+' '+i;}newCareer(+b.dataset.team,+$('#diff').value,nm);hubTab='home';renderHub();show('hub');});
 $('#btnNew').addEventListener('click',()=>{SFX.ui();show('pick');});
 $('#btnBackTitle').addEventListener('click',()=>show('title'));
-$('#btnContinue').addEventListener('click',()=>{SFX.ui();C=load();if(!C)return show('pick');if(C.phase==='offseason'){renderOff();show('off');}else{renderHub();show('hub');}});
+function renderSaves(){const a=profiles().map(n=>[n,load(n)]).filter(x=>x[1]);$('#savesBox').hidden=!a.length;
+  $('#saves').innerHTML=a.map(([n,c])=>{const t=c.teams[c.team];return `<div class="row"><button class="go" data-load="${esc(n)}">Continue: ${esc(n)}</button><span>${esc(TEAMS[c.team].city)} ${esc(TEAMS[c.team].name)} · season ${c.season} · ${t.w}-${t.l}${t.t?'-'+t.t:''} · ${c.titles} title${c.titles===1?'':'s'}</span></div>`;}).join('');}
+$('#saves').addEventListener('click',ev=>{const b=ev.target.closest('[data-load]');if(!b)return;SFX.ui();C=load(b.dataset.load);if(!C)return renderSaves();hubTab='home';if(C.phase==='offseason'){renderOff();show('off');}else{renderHub();show('hub');}});
 $('#btnQuit').addEventListener('click',()=>{G=null;renderHub();show('hub');});
 let hubTab='home';
 function recStr(t){return `${t.w}-${t.l}${t.t?'-'+t.t:''}`;}
@@ -917,7 +928,7 @@ function statLine(p){const s=p.st||{};if(p.pos==='QB')return `${s.pc||0}/${s.pa|
 function renderHub(){
   const me=TEAMS[C.team],t=C.teams[C.team],f=fixture();const sp=C.roster.reduce((s,p)=>s+p.sp,0);
   let h=`<div class="panel col"><div class="row" style="justify-content:space-between">
-    <div><h2>${esc(me.city)} ${esc(me.name)}</h2><p class="dim">Progress saves automatically in this browser after every game and every purchase.</p><p>Season ${C.season} · <span class="gold">${recStr(t)}</span> · <span class="good">${cash(C.credits)}</span> · ${C.titles} Pixel Bowl title${C.titles===1?'':'s'}</p></div>
+    <div><h2>${esc(me.city)} ${esc(me.name)} · COACH ${esc((C.name||'').toUpperCase())}</h2><p class="dim">Progress saves automatically under your name after every game and every purchase.</p><p>Season ${C.season} · <span class="gold">${recStr(t)}</span> · <span class="good">${cash(C.credits)}</span> · ${C.titles} Pixel Bowl title${C.titles===1?'':'s'}</p></div>
     <div class="row"><span class="chip">TEAM ${stars((offRating()+defRating())/2)}</span><span class="chip">OFF ${offRating()}</span><span class="chip">DEF ${defRating()}</span></div></div>
     <div class="tabs" role="tablist">${[['home','Locker room'],['roster','Roster'+(sp?' ('+sp+')':'')],['table','Standings'],['sched','Schedule'],['office','Front office']].map(([k,l])=>`<button role="tab" aria-selected="${hubTab===k}" data-tab="${k}" class="sm">${l}</button>`).join('')}</div></div>`;
   if(hubTab==='home'){
@@ -959,8 +970,8 @@ $('#hub').addEventListener('change',ev=>{if(ev.target.id==='diffSel'){C.diff=+ev
 $('#hub').addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;SFX.ui();
   if(b.dataset.tab){hubTab=b.dataset.tab;wipeArm=false;return renderHub();}
   if(b.dataset.act==='play')return playNext();
-  if(b.dataset.act==='title'){$('#btnContinue').hidden=false;return show('title');}
-  if(b.dataset.act==='wipe'){if(!wipeArm){wipeArm=true;$('#wipeMsg').hidden=false;return;}try{localStorage.removeItem(KEY);}catch(e){}C=null;wipeArm=false;$('#btnContinue').hidden=true;return show('title');}
+  if(b.dataset.act==='title'){return show('title');}
+  if(b.dataset.act==='wipe'){if(!wipeArm){wipeArm=true;$('#wipeMsg').hidden=false;return;}wipe(C.name);C=null;wipeArm=false;return show('title');}
   if(b.dataset.up){const [id,k]=b.dataset.up.split(':'),p=C.roster.find(x=>x.id===id);if(p&&p.sp>0&&p.a[k]<p.pot){p.a[k]=Math.min(p.pot,p.a[k]+3);p.sp--;}return renderHub();}
   if(b.dataset.buy==='camp'&&C.credits>=3){C.credits-=3;C.roster.forEach(p=>{p.xp+=60;while(p.xp>=xpNeed(p)){p.xp-=xpNeed(p);p.lvl++;p.sp++;}});return renderHub();}
   if(b.dataset.buy==='pep'&&C.credits>=2&&!C.boost){C.credits-=2;C.boost=true;return renderHub();}
@@ -1019,7 +1030,6 @@ function loop(ts){const dt=Math.min(.05,(ts-lastT)/1000||0);lastT=ts;T+=dt;
     G.hype=0;drawWorld(dt);g.fillStyle='rgba(5,7,15,.72)';g.fillRect(0,70,W,72);g.fillStyle='#ffd23f';g.fillRect(0,70,W,2);g.fillRect(0,140,W,2);ctxt('FOURTH & LONG',W/2,84,'#ffd23f',5,'#7a3b00');ctxt('BE THE QUARTERBACK. BUILD THE DYNASTY.',W/2,122,'#eef1fb',2,'#05070f');
     G=k;fieldCv=f;crowdCv=c[0];crowdG=c[1];}
   requestAnimationFrame(loop);}
-{const sv=load();if(sv){$('#btnContinue').hidden=false;$('#saveNote').textContent=`Saved: ${TEAMS[sv.team].name}, season ${sv.season}, ${sv.teams[sv.team].w}-${sv.teams[sv.team].l}`;}}
 show('title');requestAnimationFrame(loop);
 window.__fal={step:n=>{for(let i=0;i<n;i++){T+=.033;frame(.033);}},get G(){return G},get C(){return C},PLAYS,leadThrow,choosePlay,snap,nearestDef,resolveOpp,kickPress,inp};
 })();

@@ -41,7 +41,7 @@ To put it online, turn on GitHub Pages for this repo (Settings → Pages → dep
 - Career mode: 12 teams, an 11-game season, a four-team playoff and the Pixel Bowl
 - XP, level-ups and skill points, free agents, facility upgrades, a rookie draft, aging and retirement
 - Day, night, snow and rain games
-- Saves to the browser's local storage
+- A separate save for each player name, kept in the browser's local storage
 
 ## Editing
 
