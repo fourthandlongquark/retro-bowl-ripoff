@@ -30,7 +30,7 @@ To put it online, turn on GitHub Pages for this repo (Settings → Pages → dep
 
 ## What is in it
 
-- A 19-play book (passes, six runs including a QB draw, a punt and a fake punt); you are dealt four that fit the down, with route diagrams and a plain-language note on what each one does
+- A 39-play book built on real football concepts (stick, smash, mesh, dagger, mills, yankee, inside zone, power, counter, trap, jet sweep, read option and more); you are dealt four that fit the down, with route diagrams and a plain-language note on what each one does
 - Interceptions: defenders jump low throws in the air or beat the receiver to the landing spot
 - Auto juke toggle, four difficulty levels, and money to spend on players, fans, coaches, scouts, training camps and skill points
 - Slingshot passing: drag back to aim, pull further to throw further, with a live arc and yard count

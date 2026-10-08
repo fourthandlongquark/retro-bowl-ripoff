@@ -81,7 +81,7 @@ ul{margin:0;padding-left:20px}
     </div>
     <div class="panel col">
       <h2>How it plays</h2>
-      <p>You are the quarterback and the head coach. Call a play from a 19-play book (you get four that fit the down, and can swap for four more), snap it, find the open receiver, then run after the catch. Your defense plays on its own, and how good it is depends on the roster you build.</p>
+      <p>You are the quarterback and the head coach. Call a play from a 39-play book built on real football concepts (you get four that fit the down, and can swap for four more), snap it, find the open receiver, then run after the catch. Your defense plays on its own, and how good it is depends on the roster you build.</p>
       <p><span class="gold">Throw:</span> press anywhere, drag back like a slingshot, and release. The ball goes the opposite way, and the further you pull, the further it flies. A dotted arc and a yard count show where it will land. You can also click or tap a receiver for a quick led pass. Keys <kbd>1</kbd>–<kbd>4</kbd> also throw to the numbered receiver. A green number is open, red is covered.</p>
       <p><span class="gold">Interceptions:</span> defenders can pick the ball off two ways. They can jump in front of a low throw while it is in the air, or beat your receiver to the spot where it lands. The yard count turns red and says DEFENDER when one is sitting where you are aiming. Throw over them with a longer pull, or pick someone else.</p>
       <p><span class="gold">Run:</span> <kbd>WASD</kbd> or arrows (on a phone, drag the left side of the field). <kbd>Space</kbd> dives for extra yards, or slides when you scramble with the QB. <kbd>Shift</kbd> jukes a tackler. Turn on <span class="gold">Auto juke</span> under the field and your runner jukes on his own, but it only fools the tackler about 6 times in 10. A juke you time yourself always works. Hit a receiver <span class="gold">in stride</span>, while he is running upfield, and he gets a burst of speed after the catch. Right after any catch the nearest defenders are a step slow, and your receiver will usually shake the first tackler on his own.</p>
@@ -156,32 +156,58 @@ const SLOTS=['QB','RB','WR','WR','TE','OL','DL','LB','CB','S','K'];
 const SKIN=['#f1c9a5','#d9a273','#a8703f','#6f4526'];
 /* routes: [yards forward, yards toward the ball (negative = toward the sideline)] */
 const PLAYS=[
+ /* short */
  {name:'SLANTS',tag:'short',d:['QUICK SHORT PASSES','SAFE. GOOD VS A BLITZ'],type:'pass',r:{WR1:[[3,0],[13,9]],WR2:[[3,0],[13,9]],TE:[[4,0],[6,-9]],RB:[[0,-7],[5,-11]]}},
  {name:'QUICK HITCH',tag:'short',d:['RECEIVERS STOP AT 5 YARDS','FAST, EASY COMPLETIONS'],type:'pass',r:{WR1:[[6,0],[5,1]],WR2:[[6,0],[5,1]],TE:[[5,0],[6,-10]],RB:[[1,-8],[3,-14]]},stop:{WR1:1,WR2:1}},
  {name:'HB SCREEN',tag:'short',d:['DUMP IT TO THE BACK','LET HIM RUN BEHIND BLOCKS'],type:'pass',r:{WR1:[[30,0]],WR2:[[30,0]],TE:[[3,0],[4,6]],RB:[[-3,-6],[-2,-12]]},stop:{TE:1,RB:1}},
  {name:'MESH',tag:'short',d:['TWO RECEIVERS CROSS','SOMEBODY GETS OPEN'],type:'pass',r:{WR1:[[2,0],[6,34]],WR2:[[4,0],[9,34]],TE:[[10,0],[16,-6]],RB:[[0,-8],[4,-12],[28,-12]]}},
+ {name:'STICK',tag:'short',d:['TIGHT END SITS AT 5 YARDS','THROW TO 3 OR THE FLAT'],type:'pass',r:{WR1:[[3,0],[13,9]],WR2:[[40,0]],TE:[[5,0],[5,-4]],RB:[[1,-8],[3,-16]]},stop:{TE:1}},
+ {name:'SPACING',tag:'short',d:['THREE SIT DOWN SHORT','FIND THE GAP IN THE ZONE'],type:'pass',r:{WR1:[[5,0],[5,8]],WR2:[[5,0],[5,8]],TE:[[4,0],[4,6]],RB:[[1,-8],[3,-14]]},stop:{WR1:1,WR2:1,TE:1}},
+ {name:'BUBBLE SCREEN',tag:'short',d:['QUICK THROW TO NUMBER 2','CATCH IT AND GO'],type:'pass',r:{WR1:[[30,0]],WR2:[[-1,0],[-2,8]],TE:[[3,0],[6,-8]],RB:[[1,5],[3,5]]},stop:{WR2:1,RB:1}},
+ {name:'TEXAS',tag:'short',d:['BACK FAKES OUT, CUTS IN','BEATS A LINEBACKER'],type:'pass',r:{WR1:[[13,0],[11,2]],WR2:[[40,0]],TE:[[12,0],[18,-8]],RB:[[2,-8],[5,-10],[12,6]]},stop:{WR1:1}},
+ {name:'SHALLOW CROSS',tag:'short',d:['NUMBER 1 DRAGS ACROSS','HIT HIM ON THE RUN'],type:'pass',r:{WR1:[[2,0],[4,36]],WR2:[[14,0],[12,2]],TE:[[10,0],[11,12]],RB:[[1,-8],[4,-12]]},stop:{WR2:1}},
+ /* mid */
  {name:'CURLS',tag:'mid',d:['RUN OUT, STOP, TURN BACK','EASY MEDIUM THROWS'],type:'pass',r:{WR1:[[13,0],[11,2]],WR2:[[13,0],[11,2]],TE:[[7,0],[7,7]],RB:[[1,-8],[4,-14]]},stop:{WR1:1,WR2:1,TE:1}},
- {name:'FLOOD',tag:'mid',d:['THREE TARGETS, ONE SIDE','PICK SHORT, MID OR DEEP'],type:'pass',r:{WR1:[[14,0],[16,10]],WR2:[[40,0]],TE:[[10,0],[12,-12]],RB:[[1,-8],[4,-16]]}},
+ {name:'SAIL',tag:'mid',d:['THREE TARGETS, ONE SIDE','PICK SHORT, MID OR DEEP'],type:'pass',r:{WR1:[[14,0],[16,10]],WR2:[[40,0]],TE:[[10,0],[12,-12]],RB:[[1,-8],[4,-16]]}},
  {name:'WHEEL',tag:'mid',d:['BACK SNEAKS UP THE SIDE','WAIT FOR NUMBER 4'],type:'pass',r:{WR1:[[12,0],[10,2]],WR2:[[4,0],[12,14]],TE:[[6,0],[7,10]],RB:[[1,-9],[5,-13],[35,-13]]},stop:{WR1:1}},
  {name:'POST CORNER',tag:'mid',d:['ONE CUTS IN, ONE CUTS OUT','BEATS TIGHT COVERAGE'],type:'pass',r:{WR1:[[11,0],[30,13]],WR2:[[15,0],[12,-2]],TE:[[8,0],[24,-9]],RB:[[3,3],[7,9]]},stop:{WR2:1}},
+ {name:'SMASH',tag:'mid',d:['SHORT HITCH, CORNER BEHIND','HIGH-LOW ON THE CORNER'],type:'pass',r:{WR1:[[5,0],[4,1]],WR2:[[5,0],[4,1]],TE:[[9,0],[24,-10]],RB:[[2,4],[10,10]]},stop:{WR1:1,WR2:1}},
+ {name:'LEVELS',tag:'mid',d:['TWO IN-CUTS, TWO DEPTHS','THROW TO THE OPEN LEVEL'],type:'pass',r:{WR1:[[5,0],[6,26]],WR2:[[12,0],[13,24]],TE:[[40,2]],RB:[[1,-8],[3,-14]]}},
+ {name:'DAGGER',tag:'mid',d:['SEAM CLEARS, DIG BEHIND','HIT 2 AT 15 YARDS'],type:'pass',r:{WR1:[[5,0],[6,20]],WR2:[[14,0],[15,22]],TE:[[45,3]],RB:[[1,-8],[4,-12]]}},
+ {name:'Y CROSS',tag:'mid',d:['TIGHT END CROSSES DEEP','WAIT FOR 3 TO CLEAR'],type:'pass',r:{WR1:[[40,0]],WR2:[[13,0],[11,2]],TE:[[6,0],[18,30]],RB:[[1,-8],[3,-14]]},stop:{WR2:1}},
+ {name:'PA BOOT',tag:'mid',d:['FAKE THE RUN, ROLL OUT','LINEBACKERS BITE'],type:'pass',pa:true,r:{WR1:[[10,0],[14,40]],WR2:[[14,0],[12,-2]],TE:[[4,0],[8,-14]],RB:[[1,-8],[3,-12]]},stop:{WR2:1}},
+ /* deep */
  {name:'FOUR VERTS',tag:'deep',d:['EVERYONE RUNS DEEP','BIG GAIN, BIG RISK'],type:'pass',r:{WR1:[[45,0]],WR2:[[45,0]],TE:[[6,0],[45,3]],RB:[[2,-6],[5,-6]]},stop:{RB:1}},
  {name:'DEEP SHOT',tag:'deep',d:['FAKE SHORT, THEN GO LONG','NEEDS TIME IN THE POCKET'],type:'pass',r:{WR1:[[9,0],[13,-2],[45,-2]],WR2:[[12,0],[38,15]],TE:[[5,0],[6,12]],RB:[[1,5],[3,5]]},stop:{RB:1}},
  {name:'HAIL MARY',tag:'deep',d:['ALL FOUR SPRINT DEEP','LAST RESORT BOMB'],type:'pass',r:{WR1:[[50,0]],WR2:[[50,0]],TE:[[50,2]],RB:[[2,-6],[50,-6]]}},
- {name:'HB DIVE',tag:'run',d:['HAND OFF AND RUN','NO THROW. STEADY YARDS'],type:'run'},
- {name:'HB SWEEP',tag:'run',d:['RUN WIDE TO THE OUTSIDE','BEAT THEM TO THE EDGE'],type:'run',dir:[.45,.9,.9]},
- {name:'HB TOSS',tag:'run',d:['PITCH TO THE OTHER SIDE','GET OUTSIDE IN SPACE'],type:'run',dir:[.4,-.9,1]},
- {name:'OFF TACKLE',tag:'run',d:['RUN JUST OUTSIDE THE LINE','FOLLOW YOUR BLOCKERS'],type:'run',dir:[.85,.5,.6]},
- {name:'COUNTER',tag:'run',d:['FAKE ONE WAY, CUT BACK','LINEBACKERS START SLOW'],type:'run',dir:[.8,-.5,.6],counter:true},
- {name:'QB DRAW',tag:'run',d:['YOUR QB KEEPS IT','RUN IT YOURSELF. CAN SLIDE'],type:'run',keep:true},
+ {name:'MILLS',tag:'deep',d:['DEEP POST OVER A DIG','SAFETY CAN ONLY TAKE ONE'],type:'pass',r:{WR1:[[14,0],[40,16]],WR2:[[12,0],[13,24]],TE:[[5,0],[6,-8]],RB:[[2,-6],[4,-6]]},stop:{RB:1}},
+ {name:'YANKEE',tag:'deep',d:['RUN FAKE, POST AND CROSSER','TWO DEEP SHOTS'],type:'pass',pa:true,r:{WR1:[[14,0],[42,14]],WR2:[[8,0],[22,40]],TE:[[3,0],[4,6]],RB:[[1,5],[3,5]]},stop:{TE:1,RB:1}},
+ {name:'FADES',tag:'deep',d:['BOTH WIDEOUTS UP THE SIDE','LOB IT OVER THE CORNER'],type:'pass',r:{WR1:[[4,0],[40,-2]],WR2:[[4,0],[40,-2]],TE:[[6,0],[8,10]],RB:[[1,-8],[4,-12]]}},
+ /* runs */
+ {name:'HB DIVE',tag:'run',d:['HAND OFF AND RUN','STRAIGHT UP THE MIDDLE'],type:'run'},
+ {name:'INSIDE ZONE',tag:'run',d:['LINE BLOCKS ONE WAY','FIND THE CUTBACK LANE'],type:'run',dir:[.9,.25,.5],shed:.5},
+ {name:'STRETCH',tag:'run',d:['RUN WIDE WITH THE LINE','TURN UP WHEN IT OPENS'],type:'run',dir:[.6,.8,.8]},
+ {name:'POWER',tag:'run',d:['EXTRA BLOCKER LEADS','BLOCKS HOLD LONGER'],type:'run',dir:[.85,.5,.6],shed:1},
+ {name:'HB TOSS',tag:'run',d:['PITCH TO THE OUTSIDE','GET OUTSIDE IN SPACE'],type:'run',dir:[.4,-.9,1]},
+ {name:'COUNTER',tag:'run',d:['FAKE ONE WAY, CUT BACK','LINEBACKERS START SLOW'],type:'run',dir:[.8,-.5,.6],lb:1.3},
+ {name:'TRAP',tag:'run',d:['LET A RUSHER THROUGH','THEN RUN RIGHT PAST HIM'],type:'run',dir:[.92,-.2,.4],lb:.9,shed:.3},
+ {name:'HB DRAW',tag:'run',d:['LOOKS LIKE A PASS','DEFENSE DROPS BACK FIRST'],type:'run',lb:.4,react:1.4,shed:.4},
+ {name:'JET SWEEP',tag:'run',d:['NUMBER 1 TAKES IT AT SPEED','RACE TO THE FAR SIDE'],type:'run',who:'WR1',dirAbs:[.55,.83,.9],lb:.8},
+ {name:'END AROUND',tag:'run',d:['NUMBER 2 COMES ALL THE WAY','MISDIRECTION. SLOW TO START'],type:'run',who:'WR2',dirAbs:[.55,-.83,.9],lb:1.4},
+ {name:'QB DRAW',tag:'run',d:['YOUR QB KEEPS IT','RUN IT YOURSELF. CAN SLIDE'],type:'run',keep:true,lb:.5,react:1.2},
+ {name:'QB SNEAK',tag:'run',d:['QB DIVES BEHIND CENTER','FOR ONE YARD TO GO'],type:'run',keep:true,sneak:true,shed:1.2},
+ {name:'READ OPTION',tag:'run',d:['QB KEEPS AROUND THE END','FAKE TO THE BACK FIRST'],type:'run',keep:true,dir:[.5,.85,.8],lb:1},
+ /* special */
  {name:'PUNT',tag:'special',d:['KICK IT AWAY','GIVE THEM A LONG FIELD'],type:'special',punt:true},
  {name:'FAKE PUNT',tag:'special',d:['LOOKS LIKE A PUNT, THEN PASS','DEFENSE STARTS SLOW. RISKY'],type:'pass',fake:true,r:{WR1:[[40,0]],WR2:[[40,0]],TE:[[4,0],[6,-10]],RB:[[2,-8],[30,-10]]}}];
-function dealPlays(){const by=t=>PLAYS.map((p,i)=>i).filter(i=>PLAYS[i].tag===t).sort(()=>Math.random()-.5);
+const dealt={};let dealN=0;
+function dealPlays(){dealN++;const by=t=>PLAYS.map((p,i)=>i).filter(i=>PLAYS[i].tag===t&&!(PLAYS[i].sneak&&G.toGo>2)).sort((a,b)=>((dealt[a]||0)-(dealt[b]||0))||Math.random()-.5);
   const S=by('short'),M=by('mid'),D=by('deep'),Rn=by('run'),pi=PLAYS.findIndex(p=>p.punt),fi=PLAYS.findIndex(p=>p.fake);let h;
   if(G.down===4)h=[pi,fi,G.toGo<=3?Rn[0]:M[0],G.toGo<=3?S[0]:D[0]];
   else if(G.toGo<=3)h=[Rn[0],Rn[1],S[0],M[0]];
   else if(G.toGo>=12||G.down===3&&G.toGo>=6)h=[S[0],M[0],D[0],D[1]];
-  else h=[Rn[0],S[0],M[0],D[0]];
-  G.hand=h;}
+  else h=Math.random()<.35?[Rn[0],Rn[1],S[0],M[0]]:[Rn[0],S[0],M[0],D[0]];
+  h.forEach(i=>{dealt[i]=dealN+Math.random();});G.hand=h;}
 
 
 /* ---------- bitmap font ---------- */
@@ -380,7 +406,7 @@ function setFormation(play){
   const top=by-MID<=0;
   for(let i=0;i<5;i++)add(O,{role:'OL',i,team:'O',c:G.cO,x:L-5,y:by+(i-2)*11,spd:40,idle:'set',anim:'set',p:R.OL});
   const run=play.type==='run';
-  G.qb=add(O,{role:'QB',team:'O',c:G.cO,x:L-(play.fake?46:run?16:24),y:by,spd:mySpd(R.QB)-3,idle:'qbset',anim:'qbset',p:R.QB,skin:R.QB.skin,hasBall:true});
+  G.qb=add(O,{role:'QB',team:'O',c:G.cO,x:L-(play.fake?46:play.sneak?9:run?16:24),y:by,spd:mySpd(R.QB)-3,idle:'qbset',anim:'qbset',p:R.QB,skin:R.QB.skin,hasBall:true});
   add(O,{role:'RB',team:'O',c:G.cO,x:L-(run?34:26),y:by+(run?4:14),spd:mySpd(R.RB),idle:'ready',anim:'ready',p:R.RB,skin:R.RB.skin,tag:4});
   add(O,{role:'WR1',team:'O',c:G.cO,x:L-4,y:FT+16,spd:mySpd(R.WR1),idle:'ready',anim:'ready',p:R.WR1,skin:R.WR1.skin,tag:1});
   add(O,{role:'WR2',team:'O',c:G.cO,x:L-4,y:FB-14,spd:mySpd(R.WR2),idle:'ready',anim:'ready',p:R.WR2,skin:R.WR2.skin,tag:2});
@@ -397,6 +423,7 @@ function setFormation(play){
   D.forEach(d=>{d.x=Math.min(d.x,WW-10);d.y=clamp(d.y,FT+6,FB-6);});
   if(!run)['WR1','WR2','TE','RB'].forEach(r=>{const e=rec(r),s=e.y<by?1:-1;e.route=play.r[r].map(([fx,iy])=>({x:clamp(e.x+fx*YD,4,WW-10),y:clamp(e.y+iy*4*s,FT+5,FB-5)}));e.wp=0;e.stop=!!(play.stop&&play.stop[r]);});
   const ol=O.filter(e=>e.role==='OL'),dl=D.filter(e=>e.role==='DL');[0,1,3,4].forEach((oi,k)=>{ol[oi].block=dl[k];dl[k].blocker=ol[oi];});
+  G.runner=play.who?rec(play.who):rec('RB');if(play.who){const w=G.runner;w.x=L-20;w.y=by+(play.who==='WR1'?-34:34);}
   G.center=ol[2];G.ents=E;G.off=O;G.def=D;G.recs=['WR1','WR2','TE','RB'].map(rec);G.rb=rec('RB');
   G.ball={fly:false,vis:false,x:G.qb.x,y:G.qb.y};G.carrier=G.qb;G.sweepDir=top?1:-1;
 }
@@ -412,14 +439,15 @@ function choosePlay(i){const P=PLAYS[G.hand[i]];if(!P)return;if(P.punt)return do
 function snap(){
   const P=G.play;G.state='live';G.pt=0;G.phase=P.type==='run'?'hand':'pocket';G.thrown=false;G.caught=null;G.qbRun=false;G.tgt=null;G.tgtDef=null;G.brkN=0;SFX.snap();
   const blk=G.r.OL.g.BLK,dr=G.oppR.def;
-  if(P.type==='run')G.def.forEach(d=>{if(d.role==='LB')d.slowT=P.counter?1.3:.6;});
+  if(P.type==='run')G.def.forEach(d=>{if(d.role==='LB'){d.slowT=P.lb||.6;if(P.react)d.react=P.react;}});
+  if(P.pa)G.def.forEach(d=>{if(d.role==='LB')d.slowT=1.1;else if(d.role!=='DL')d.slowT=.45;});
   if(P.keep){G.phase='run';G.qbRun=true;G.qb.brk=0;}
   if(P.fake){float('FAKE!',G.qb.x,G.qb.y-26,'#ffd23f');G.def.forEach(d=>{if(d.role!=='DL')d.slowT=1.3;});}
-  G.def.forEach(d=>{if(d.role==='DL'){d.shedT=P.type==='run'?rnd(2.2,3.6)+blk*.12:Math.max(1.3,2.3+blk*.3+rnd(0,1.6)-(dr-60)*.02-G.dK*3);}});
+  G.def.forEach(d=>{if(d.role==='DL'){d.shedT=P.type==='run'?rnd(2.2,3.6)+blk*.12+(P.shed||0):Math.max(1.3,2.3+blk*.3+rnd(0,1.6)-(dr-60)*.02-G.dK*3);}});
   const lb=G.def.find(d=>d.role==='LB'&&d.i===1);
   if(P.type==='pass'&&!P.fake&&Math.random()<.2+G.dK){lb.blitz=true;lb.man=null;}
   G.ents.forEach(e=>{e.lockT=0;});
-  if(P.type==='run'){G.off.forEach(e=>{if(e.role==='WR1')e.blk=G.def.find(d=>d.role==='CB'&&d.i===0);if(e.role==='WR2')e.blk=G.def.find(d=>d.role==='CB'&&d.i===1);if(e.role==='TE')e.blk=G.def.find(d=>d.role==='LB'&&d.i===0);});}
+  if(P.type==='run'){G.off.forEach(e=>{if(e===G.runner)return;if(e.role==='WR1')e.blk=G.def.find(d=>d.role==='CB'&&d.i===0);if(e.role==='WR2')e.blk=G.def.find(d=>d.role==='CB'&&d.i===1);if(e.role==='TE')e.blk=G.def.find(d=>d.role==='LB'&&d.i===0);});}
 }
 function steer(e,vx,vy,dt){const k=Math.min(1,e.acc*dt);e.vx+=(vx-e.vx)*k;e.vy+=(vy-e.vy)*k;}
 function seek(e,tx,ty,s,dt){const dx=tx-e.x,dy=ty-e.y,d=Math.hypot(dx,dy)||1,sl=d<5?d/5:1;steer(e,dx/d*s*sl,dy/d*s*sl,dt);}
@@ -562,9 +590,10 @@ function getMove(){let x=0,y=0;const k=inp.k;if(k.ArrowLeft||k.KeyA)x--;if(k.Arr
   if(inp.joy){const j=inp.joy,m=Math.hypot(j.x,j.y);if(m>5){x=j.x/m;y=j.y/m;}}const m=Math.hypot(x,y);return m?{x:x/m,y:y/m}:{x:0,y:0};}
 function updateLive(dt){
   G.pt+=dt;if(!G.ot)G.clock=Math.max(0,G.clock-dt);
-  const P=G.play,qb=G.qb,L=G.L,mv=getMove(),rb=G.rb;
+  const P=G.play,qb=G.qb,L=G.L,mv=getMove();
   const dive=inp.dive,juke=inp.juke;inp.dive=inp.juke=false;
-  if(G.phase==='hand'){seek(rb,qb.x-2,qb.y+4,rb.spd,dt);if(G.pt>.28){G.phase='run';qb.hasBall=false;rb.hasBall=true;G.carrier=rb;rb.brk=0;qb.idle='idle';}}
+  const rb=G.runner||G.rb;
+  if(G.phase==='hand'){seek(rb,qb.x-2,qb.y+4,rb.spd,dt);if(Math.hypot(rb.x-qb.x,rb.y-qb.y)<9||G.pt>1.1){G.phase='run';qb.hasBall=false;rb.hasBall=true;G.carrier=rb;rb.brk=0;qb.idle='idle';}}
   if(G.phase==='pocket'){
     const s=qb.spd*.85;if(mv.x||mv.y)steer(qb,mv.x*s,mv.y*s*.8,dt);else if(G.pt<.55)steer(qb,-34,0,dt);else steer(qb,0,0,dt);
     if(qb.lockT<=0){qb.face=1;qb.anim=Math.hypot(qb.vx,qb.vy)>8?'drop':'qbset';}
@@ -576,7 +605,7 @@ function updateLive(dt){
     else{
       if(dive){car.diveT=.2+(car.p.g.DIV||5)*.022;car.sliding=car===qb;setAnim(car,car.sliding?'slide':'dive',3);car.face=1;SFX.juke();}
       else{const aj=autoJuke&&!juke&&nearestDef(car,true).dist<12;if((juke||aj)&&(car.jukeCd||0)<=0){car.autoJ=aj;car.jukeT=.18+(car.p.g.DOD||5)*.026;car.jukeCd=1.7-(car.p.g.DOD||5)*.09;const nd=nearestDef(car,true).d;const dir=mv.y?Math.sign(mv.y):(nd&&nd.y>car.y?-1:1);car.vy=(car.y<FT+24?1:car.y>FB-24?-1:dir)*120;setAnim(car,'juke',.3);SFX.juke();}
-        let dx=mv.x,dy=mv.y;if(!dx&&!dy){if(P.dir&&car===rb&&G.pt<P.dir[2]){dx=P.dir[0];dy=-P.dir[1]*G.sweepDir;}else{dx=1;dy=0;}}
+        let dx=mv.x,dy=mv.y;if(!dx&&!dy){if(P.dirAbs&&G.pt<P.dirAbs[2]+.5){dx=P.dirAbs[0];dy=P.dirAbs[1];}else if(P.dir&&G.pt<P.dir[2]){dx=P.dir[0];dy=-P.dir[1]*G.sweepDir;}else{dx=1;dy=0;}}
         const s=car.spd*.9*(car.strideT>0?1.2:1)*(car.slowT>0?.5:1)*(car.jukeT>0?.75:1);if(!(car.jukeT>0))steer(car,dx*s,dy*s*.8,dt);else steer(car,dx*s,car.vy,dt*.3);}
     }
     car.freeJ=Math.max(0,(car.freeJ||0)-dt);car.strideT=Math.max(0,(car.strideT||0)-dt);car.jukeT=Math.max(0,(car.jukeT||0)-dt);car.jukeCd=Math.max(0,(car.jukeCd||0)-dt);car.slowT=Math.max(0,(car.slowT||0)-dt);
@@ -702,7 +731,8 @@ function drawPlaycall(){
     g.fillStyle='#ffd23f';g.fillRect(r.x+52,ly+9,4,4);
     if(P.punt){g.strokeStyle='#fff';g.lineWidth=2;g.beginPath();g.moveTo(r.x+54,ly+14);g.quadraticCurveTo(r.x+80,r.y+10,r.x+92,r.y+34);g.stroke();ctxt('KICK',r.x+54,r.y+40,'#fff',2);}
     else if(P.type==='pass'){g.strokeStyle='#ffd23f';g.lineWidth=1;for(const k in st0){const [sx,sy,s]=st0[k];let px=r.x+sx,py=ly+2+sy;g.fillStyle='#fff';g.fillRect(px-1,py-1,3,3);g.beginPath();g.moveTo(px+.5,py+.5);P.r[k].forEach(([f,iy])=>{px=clamp(r.x+sx+iy*1.5*s,r.x+5,r.x+r.w-6);py=Math.max(r.y+17,ly+2+sy-f*1.8);g.lineTo(px+.5,py+.5);});g.stroke();g.fillStyle='#ffd23f';g.fillRect(Math.round(px)-1,Math.round(py)-1,3,3);}}
-    else{g.strokeStyle='#5bdb85';g.lineWidth=2;g.beginPath();g.moveTo(r.x+54,ly+16);if(P.dir){g.lineTo(r.x+54-P.dir[1]*38,ly+8);g.lineTo(r.x+54-P.dir[1]*42,r.y+30);}else g.lineTo(r.x+54,r.y+28);g.stroke();g.fillStyle='#fff';g.fillRect(r.x+52,ly+15,4,4);}
+    else{g.strokeStyle='#5bdb85';g.lineWidth=2;g.beginPath();g.moveTo(r.x+54,ly+16);if(P.who){const a=P.who==='WR1';g.moveTo(r.x+(a?12:98),ly+2);g.lineTo(r.x+54,ly+12);g.lineTo(r.x+(a?94:16),ly-4);g.lineTo(r.x+(a?100:10),r.y+30);}
+      else if(P.dir){g.lineTo(r.x+54-P.dir[1]*38,ly+8);g.lineTo(r.x+54-P.dir[1]*42,r.y+30);}else g.lineTo(r.x+54,r.y+28);g.stroke();g.fillStyle='#fff';g.fillRect(r.x+52,ly+15,4,4);}
     ctxt(P.d[0],r.x+r.w/2,r.y+r.h+6,'#eef1fb');ctxt(P.d[1],r.x+r.w/2,r.y+r.h+15,'#97a5cc');
   });
   const b=(r,t,on)=>{g.fillStyle=on?'#1c2748':'#10162a';g.fillRect(r.x,r.y,r.w,r.h);g.fillStyle=on?'#ffd23f':'#2e3d6b';g.fillRect(r.x,r.y,r.w,2);ctxt(t,r.x+r.w/2,r.y+9,on?'#eef1fb':'#56628a',2);};
