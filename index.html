@@ -100,7 +100,7 @@ ul{margin:0;padding-left:20px}
     <div class="panel col">
       <h2>Pick your franchise</h2>
       <div class="row"><label for="diff">Difficulty</label>
-        <select id="diff"><option value="0">Rookie</option><option value="1" selected>Pro</option><option value="2">All-Pro</option><option value="3">Legend</option></select></div>
+        <select id="diff"><option value="0">Easy</option><option value="1" selected>Normal</option><option value="2">Hard</option><option value="3">Legend (hardest)</option></select></div>
       <div class="teams" id="teamGrid"></div>
       <div><button id="btnBackTitle" class="sm">Back</button></div>
     </div>
@@ -370,7 +370,7 @@ function kit(c){return {j:c.j,h:c.h,p:c.p,jl:shade(c.j,1.25),hl:shade(c.h,1.35)}
 function newGame(o){
   const me=TEAMS[o.me],opp=TEAMS[o.opp];
   Object.values(o.r).forEach(prep);
-  G={me,opp,meI:o.me,oppI:o.opp,oppR:o.oppR||{off:65,def:65},r:o.r,myDef:o.myDef||60,dK:[-.12,0,.12,.22][o.diff==null?1:o.diff],live:o.live||1,oc:o.oc||0,empty:o.empty==null?.12:o.empty,playoff:!!o.po,label:o.label||'',demo:!!o.demo,
+  G={me,opp,meI:o.me,oppI:o.opp,oppR:o.oppR||{off:65,def:65},r:o.r,myDef:o.myDef||60,dK:[-.16,0,.14,.24][o.diff==null?1:o.diff],live:o.live||1,oc:o.oc||0,empty:o.empty==null?.12:o.empty,playoff:!!o.po,label:o.label||'',demo:!!o.demo,
     myScore:0,oppScore:0,q:1,clock:QLEN,yl:25,down:1,toGo:10,by:MID,state:'idle',ents:[],off:[],def:[],ball:{fly:false,x:0,y:0,vis:false},cam:{x:0,sh:0},
     parts:[],floats:[],wx:[],banner:null,weather:o.weather||pick(['day','day','night','night','snow','rain']),gs:{},tm:{stops:0,take:0,sacked:0,yds:0},hype:0,ot:false,after:null,deadT:0,deadMax:0,poss:'me'};
   G.cO=kit({j:me.c1,h:me.c2,p:me.c3});G.cD=kit({j:'#e9edf6',h:opp.c1,p:opp.c2===opp.c1?'#30343f':opp.c2});
@@ -532,7 +532,7 @@ function endPlay(kind){
       res.run=kind!=='oob';G.by=clamp(c.y,MID-32,MID+32);}
   }
   if(kind==='tackle'&&gain>=20)G.hype=1.5;
-  G.res=res;say(s);G.state='dead';G.deadT=G.deadMax=kind==='td'?2.6:1.7;G.after=afterPlay;
+  G.res=res;say(s);G.state='dead';G.deadT=G.deadMax=kind==='td'?2.1:1;G.after=afterPlay;
 }
 function tickClock(run){ if(G.ot)return 'ok';if(run)G.clock-=9;
   if(G.clock<=0){if(G.q===2){G.q=3;G.clock=QLEN;return 'half';}if(G.q>=4)return 'end';G.q++;G.clock=QLEN;}return 'ok';}
@@ -576,7 +576,7 @@ function resolveOpp(){
   startDrive(d.next);
 }
 function doPunt(){const net=ri(34,50),spot=G.yl+net,opp=spot>=100?20:100-spot;say(`Punt travels ${net} yards${spot>=100?' for a touchback':''}.`);banner('PUNT',net+' YARDS','#e9edf6',1.3);SFX.kick();
-  G.state='dead';G.deadT=G.deadMax=1.4;G.after=()=>giveOpp(opp);}
+  G.state='dead';G.deadT=G.deadMax=.9;G.after=()=>giveOpp(opp);}
 function startKick(type){
   const dist=type==='xp'?33:fgDist(),K=G.r.K;G.state='kick';
   const sx=type==='xp'?(10+85)*YD-7*YD:G.L-7*YD;
@@ -594,7 +594,7 @@ function resolveKick(){const k=G.kick;
   giveOpp(k.type==='fg'&&!k.good?100-G.yl:25);}
 function finish(){
   if(G.myScore===G.oppScore&&G.playoff&&!G.ot){G.ot=true;G.q=5;banner('OVERTIME','SCORE TO WIN','#ffd23f',2);say('Overtime. You get the ball. Score and you win. Give it up and you lose.');return startDrive(25);}
-  G.state='final';G.finalT=2.6;const w=G.myScore>G.oppScore;banner('FINAL',w?'YOU WIN':G.myScore===G.oppScore?'TIE GAME':'YOU LOSE',w?'#5bdb85':'#ff6257',3);if(w)SFX.td();else SFX.wh();updSB();}
+  G.state='final';G.finalT=1.8;const w=G.myScore>G.oppScore;banner('FINAL',w?'YOU WIN':G.myScore===G.oppScore?'TIE GAME':'YOU LOSE',w?'#5bdb85':'#ff6257',3);if(w)SFX.td();else SFX.wh();updSB();}
 
 /* ---------- live update ---------- */
 const inp={k:{},joy:null,aim:null,dive:false,juke:false};
@@ -754,18 +754,18 @@ function drawPlaycall(){
 }
 function drawOpp(dt){const d=G.od;d.t+=dt;g.fillStyle='rgba(5,7,15,.86)';g.fillRect(0,0,W,H);
   g.fillStyle=G.opp.c1;g.fillRect(0,34,W,3);ctxt('DEFENSE ON THE FIELD',W/2,14,'#ffd23f',2,'#05070f');
-  const n=Math.min(d.L.length,Math.floor(d.t/.75)+1);
+  const n=Math.min(d.L.length,Math.floor(d.t/.4)+1);
   for(let i=0;i<n;i++){const lastL=i===d.L.length-1;const col=lastL?(d.out==='td'||d.out==='fg'?'#ff6257':'#5bdb85'):i===0?'#97a5cc':'#eef1fb';const sc=tw(d.L[i],2)>W-30?1:2;ctxt(d.L[i],W/2,60+i*30,col,sc);}
-  if(d.t>d.L.length*.75+.2&&Math.floor(T*3)%2)ctxt('TAP TO CONTINUE',W/2,246,'#97a5cc',1);
-  if(d.t>d.L.length*.75+2.2)resolveOpp();}
+  if(d.t>d.L.length*.4+.2&&Math.floor(T*3)%2)ctxt('TAP TO CONTINUE',W/2,246,'#97a5cc',1);
+  if(d.t>d.L.length*.4+1)resolveOpp();}
 function drawKick(dt){const k=G.kick;
   if(k.ph==='aim'){k.n+=k.dir*k.sp*dt;if(k.n>1){k.n=1;k.dir=-1;}if(k.n<-1){k.n=-1;k.dir=1;}
     const x=140,y=226,w=200;g.fillStyle='#05070f';g.fillRect(x-3,y-17,w+6,34);ctxt(k.type==='xp'?'EXTRA POINT - TAP TO KICK':`${k.dist} YD FIELD GOAL - TAP TO KICK`,W/2,y-13,'#ffd23f',1);
     g.fillStyle='#ff6257';g.fillRect(x,y,w,10);g.fillStyle='#5bdb85';g.fillRect(Math.round(x+w/2-k.zone*w/2),y,Math.round(k.zone*w),10);g.fillStyle='#fff';g.fillRect(Math.round(x+w/2+k.n*w/2)-1,y-3,3,16);}
-  else if(k.ph==='fly'){k.t+=dt;const p=Math.min(1,k.t/1.5),b=G.ball;b.fly=true;b.x=k.sx+4+(WW-10-k.sx)*p;b.y=MID+(k.good?k.v*10:Math.sign(k.v||1)*(26+Math.abs(k.v)*12))*p;b.z=28*p+Math.sin(Math.PI*p)*46;
+  else if(k.ph==='fly'){k.t+=dt;const p=Math.min(1,k.t/1.1),b=G.ball;b.fly=true;b.x=k.sx+4+(WW-10-k.sx)*p;b.y=MID+(k.good?k.v*10:Math.sign(k.v||1)*(26+Math.abs(k.v)*12))*p;b.z=28*p+Math.sin(Math.PI*p)*46;
     G.cam.x+=(clamp(b.x-240,0,WW-W)-G.cam.x)*Math.min(1,4*dt);
     if(p>=1){k.ph='done';k.t=0;b.vis=false;banner(k.good?'IT IS GOOD!':'NO GOOD',k.type==='xp'?'EXTRA POINT':k.dist+' YARD FIELD GOAL',k.good?'#5bdb85':'#ff6257',1.5);if(k.good){SFX.good();G.hype=1.2;}else SFX.bad();say(k.good?'The kick is good.':'The kick is no good.');}}
-  else{k.t+=dt;if(k.t>1.6){k.ph='end';resolveKick();}}}
+  else{k.t+=dt;if(k.t>1){k.ph='end';resolveKick();}}}
 function frame(dt){
   if(!G)return;g=mainG;G.hype=Math.max(0,G.hype-dt);G.cam.sh=Math.max(0,G.cam.sh-dt);
   if(G.state==='live')updateLive(dt);
@@ -792,7 +792,7 @@ const inR=(p,r)=>p.x>=r.x&&p.x<=r.x+r.w&&p.y>=r.y&&p.y<=r.y+r.h;
 function aimTarget(){const a=inp.aim,qb=G.qb;let dx=(a.sx-a.cx)*3.4,dy=(a.sy-a.cy)*3.4;const d=Math.hypot(dx,dy),max=(22+G.r.QB.g.ARM*3.4)*YD;if(d>max){dx*=max/d;dy*=max/d;}return {x:qb.x+dx,y:qb.y+dy};}
 function tryPunt(){if(G.state==='playcall')doPunt();}
 function tryFG(){if(G.state==='playcall'&&fgDist()<=fgMax())startKick('fg');}
-function skipDead(){if(G.state==='dead'&&G.deadT<G.deadMax-.45)G.deadT=0;}
+function skipDead(){if(G.state==='dead'&&G.deadT<G.deadMax-.25)G.deadT=0;}
 cv.addEventListener('pointerdown',ev=>{ev.preventDefault();if(!G)return;try{cv.setPointerCapture(ev.pointerId);}catch(e){}ac();
   const p=toL(ev),touch=ev.pointerType!=='mouse';
   if(G.state==='playcall'){for(let i=0;i<4;i++)if(inR(p,cardRect(i)))return choosePlay(i);if(inR(p,SPB.more)){dealPlays();SFX.ui();return;}if(inR(p,SPB.punt))return tryPunt();if(inR(p,SPB.fg))return tryFG();}
@@ -800,7 +800,7 @@ cv.addEventListener('pointerdown',ev=>{ev.preventDefault();if(!G)return;try{cv.s
   else if(G.state==='live'){if(touch&&p.x<W*.32)inp.joy={id:ev.pointerId,sx:p.x,sy:p.y,x:0,y:0};else if(G.phase==='pocket')inp.aim={id:ev.pointerId,sx:p.x,sy:p.y,cx:p.x,cy:p.y};}
   else if(G.state==='kick')kickPress();
   else if(G.state==='dead')skipDead();
-  else if(G.state==='opp'){const d=G.od;if(d.t>d.L.length*.75)resolveOpp();else d.t=d.L.length*.75;}
+  else if(G.state==='opp'){const d=G.od;if(d.t>d.L.length*.4)resolveOpp();else d.t=d.L.length*.4;}
 });
 cv.addEventListener('pointermove',ev=>{const p=toL(ev);if(inp.joy&&inp.joy.id===ev.pointerId){inp.joy.x=p.x-inp.joy.sx;inp.joy.y=p.y-inp.joy.sy;}if(inp.aim&&inp.aim.id===ev.pointerId){inp.aim.cx=p.x;inp.aim.cy=p.y;}});
 function pUp(ev){if(inp.joy&&inp.joy.id===ev.pointerId)inp.joy=null;
@@ -816,7 +816,7 @@ addEventListener('keydown',ev=>{if($('#game').hidden||!G)return;const c=ev.code;
   else if(G.state==='live'){if(c==='Space')inp.dive=true;else if(c==='ShiftLeft'||c==='ShiftRight'||c==='KeyJ')inp.juke=true;else if(G.phase==='pocket'){const n=parseInt(ev.key,10);if(n>=1&&n<=4){const r=G.recs.find(r=>r.tag===n);if(r)leadThrow(r);}}}
   else if(G.state==='kick'){if(c==='Space'||c==='Enter')kickPress();}
   else if(G.state==='dead'){if(c==='Space'||c==='Enter')skipDead();}
-  else if(G.state==='opp'){if(c==='Space'||c==='Enter'){const d=G.od;if(d.t>d.L.length*.75)resolveOpp();else d.t=d.L.length*.75;}}
+  else if(G.state==='opp'){if(c==='Space'||c==='Enter'){const d=G.od;if(d.t>d.L.length*.4)resolveOpp();else d.t=d.L.length*.4;}}
 });
 addEventListener('keyup',ev=>{inp.k[ev.code]=false;});
 addEventListener('blur',()=>{inp.k={};});
@@ -882,7 +882,7 @@ function renderHub(){
     ${C.fa.map((p,i)=>{const out=replaceTarget(p.pos);return `<tr><td class="gold">${p.pos}</td><td>${esc(p.name)}</td><td>${p.age}</td><td>${ovr(p)}</td><td>${Object.keys(p.a).map(k=>`<span class="attr"><b>${k}</b>${p.a[k]}</span>`).join('')}</td><td class="dim">${esc(out.name)} (${ovr(out)})</td><td><button class="sm" data-sign="${i}" ${C.credits<faCost(p)?'disabled':''}>Buy (${cash(faCost(p))})</button></td></tr>`;}).join('')||'<tr><td colspan="7" class="dim">Nobody left this week.</td></tr>'}
     </table></div></div>
     <div class="panel col"><h3>CAREER</h3>${C.hist.length?`<ul>${C.hist.map(x=>`<li>Season ${x.season}: ${x.w}-${x.l}${x.t?'-'+x.t:''}. Champion: ${esc(x.champ)}${x.won?' (you!)':''}</li>`).join('')}</ul>`:'<p class="dim">No finished seasons yet.</p>'}
-      <div class="row"><label for="diffSel">Difficulty</label><select id="diffSel">${['Rookie','Pro','All-Pro','Legend'].map((n,i)=>`<option value="${i}" ${C.diff===i?'selected':''}>${n}</option>`).join('')}</select></div>
+      <div class="row"><label for="diffSel">Difficulty</label><select id="diffSel">${['Easy','Normal','Hard','Legend (hardest)'].map((n,i)=>`<option value="${i}" ${C.diff===i?'selected':''}>${n}</option>`).join('')}</select></div>
       <div class="row"><button class="sm" data-act="title">Back to title</button><button class="sm" data-act="wipe">Delete this career</button></div><p id="wipeMsg" class="bad" hidden>Press delete again to erase the save.</p></div>`;}
   $('#hub').innerHTML=h;save();
 }
