@@ -19,7 +19,7 @@ To put it online, turn on GitHub Pages for this repo (Settings → Pages → dep
 
 | Action | Keyboard / mouse | Touch |
 | --- | --- | --- |
-| Pick a play | `1`–`4`, or click a card | Tap a card |
+| Pick a play (`M` deals other plays) | `1`–`4`, or click a card | Tap a card |
 | Snap | `Space` | Tap the field |
 | Throw a led pass | Click a receiver, or `1`–`4` | Tap a receiver |
 | Aim a throw yourself | Drag back and release | Drag back and release |
@@ -30,7 +30,7 @@ To put it online, turn on GitHub Pages for this repo (Settings → Pages → dep
 
 ## What is in it
 
-- Four plays (three passes and a run) with route diagrams and a plain-language note on what each one does
+- A 16-play book (passes, runs, a QB draw, a punt and a fake punt); you are dealt four that fit the down, with route diagrams and a plain-language note on what each one does
 - Interceptions: defenders jump low throws in the air or beat the receiver to the landing spot
 - Auto juke toggle, four difficulty levels, and money to buy better players and a bigger fan base
 - Slingshot passing: drag back to aim, pull further to throw further, with a live arc and yard count
