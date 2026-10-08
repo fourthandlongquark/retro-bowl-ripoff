@@ -93,7 +93,7 @@ ul{margin:0;padding-left:20px}
     <div class="panel col">
       <h2>How it plays</h2>
       <p>You are the quarterback and the head coach. Call a play from a 39-play book built on real football concepts (you get four that fit the down, and can swap for four more), snap it, find the open receiver, then run after the catch. On Easy and Normal your defense plays on its own, and how good it is depends on your roster. On Hard and Legend you play defense too: you control one defender at a time, chase the ball, and dive to make the tackle.</p>
-      <p><span class="gold">Throw:</span> press anywhere, drag back like a slingshot, and release. The ball goes the opposite way, and the further you pull, the further it flies. A dotted arc and a yard count show where it will land. You can also click or tap a receiver for a quick led pass. Keys <kbd>1</kbd>–<kbd>4</kbd> also throw to the numbered receiver. A green number is open, red is covered.</p>
+      <p><span class="gold">Throw:</span> press anywhere on the screen (it does not have to be on the field), drag back like a slingshot, and release. On a phone, a second finger moves the QB while you aim. The ball goes the opposite way, and the further you pull, the further it flies. A dotted arc and a yard count show where it will land. You can also click or tap a receiver for a quick led pass. Keys <kbd>1</kbd>–<kbd>4</kbd> also throw to the numbered receiver. A green number is open, red is covered.</p>
       <p><span class="gold">Interceptions:</span> defenders can pick the ball off two ways. They can jump in front of a low throw while it is in the air, or beat your receiver to the spot where it lands. The yard count turns red and says DEFENDER when one is sitting where you are aiming. Throw over them with a longer pull, or pick someone else.</p>
       <p><span class="gold">Run:</span> <kbd>WASD</kbd> or arrows (on a phone, drag the left side of the field). <kbd>F</kbd> or <kbd>Space</kbd> dives for extra yards, or slides when you scramble with the QB. <kbd>Shift</kbd> jukes a tackler. Turn on <span class="gold">Auto juke</span> under the field and your runner jukes on his own, but it only fools the tackler about 6 times in 10, and after the first one or two in a play it almost always fails. A higher DOD rating gives him more good auto jukes per play (up to three). A juke you time yourself always works. Hit a receiver <span class="gold">in stride</span>, while he is running upfield, and he gets a burst of speed after the catch. Right after any catch the nearest defenders are a step slow, and your receiver will usually shake the first tackler on his own. Once the ball is caught the defense speeds up a little to chase.</p>
       <p><span class="gold">Defense (Hard and Legend only):</span> your player has a gold ring. <kbd>WASD</kbd> moves him, <kbd>F</kbd> or <kbd>Space</kbd> dives at the ball carrier, <kbd>Shift</kbd> (or a tap on the field) switches to the defender nearest the ball. Making the stop is mostly your job. Teammates cover, and sometimes make the tackle or knock a pass down themselves, but more often they only wrap the runner up and slow him until you get there to finish it.</p>
@@ -800,7 +800,7 @@ function drawWorld(dt){
       const x=Math.round(t.x-camX),y=Math.round(t.y);g.fillStyle='#fff';g.fillRect(x-5,y-3,11,1);g.fillRect(x-5,y+3,11,1);g.fillRect(x-5,y-3,1,7);g.fillRect(x+5,y-3,1,7);g.fillStyle='#ff6257';g.fillRect(x-1,y-1,3,3);
       const risk=nearestDef(t,false).dist<12;const lab=Math.round(d/YD)+' YD'+(pw>=.99?' MAX':'')+(risk?' - DEFENDER!':'');ctxt(lab,clamp(x,50,W-50),y-14,risk?'#ff6257':'#fff',1,'#05070f');
       g.fillStyle='#05070f';g.fillRect(W/2-62,H-15,124,11);g.fillStyle=pw>.85?'#ff6257':pw>.5?'#ffd23f':'#5bdb85';g.fillRect(W/2-60,H-13,Math.round(120*pw),7);txt('POWER',W/2-58,H-12,'#05070f');}}
-  else if(G.side!=='def'&&G.state==='live'&&G.phase==='pocket'&&G.pt<4&&G.play.type==='pass'){g.fillStyle='rgba(5,7,15,.7)';g.fillRect(W/2-124,H-16,248,12);ctxt('DRAG BACK AND RELEASE - PULL FURTHER, THROW FURTHER',W/2,H-13,'#ffd23f',1);}
+  else if(G.side!=='def'&&G.state==='live'&&G.phase==='pocket'&&G.pt<4&&G.play.type==='pass'){g.fillStyle='rgba(5,7,15,.7)';g.fillRect(W/2-146,H-16,292,12);ctxt('DRAG BACK ANYWHERE AND RELEASE - PULL FURTHER, THROW FURTHER',W/2,H-13,'#ffd23f',1);}
   /* particles */
   G.parts=G.parts.filter(p=>{p.life-=dt;p.vy+=p.g*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;g.fillStyle=p.col;g.fillRect(Math.round(p.x-camX),Math.round(p.y),2,2);return p.life>0;});
   G.floats=G.floats.filter(f=>{f.life-=dt;f.y-=14*dt;ctxt(f.t,Math.round(f.x-camX),Math.round(f.y),f.col,1,'#05070f');return f.life>0;});
@@ -850,13 +850,14 @@ function drawKick(dt){const k=G.kick;
     if(p>=1){k.ph='done';k.t=0;b.vis=false;banner(k.good?'IT IS GOOD!':'NO GOOD',k.type==='xp'?'EXTRA POINT':k.dist+' YARD FIELD GOAL',k.good?'#5bdb85':'#ff6257',1.5);if(k.good){SFX.good();G.hype=1.2;}else SFX.bad();say(k.good?'The kick is good.':'The kick is no good.');}}
   else{k.t+=dt;if(k.t>1){k.ph='end';resolveKick();}}}
 function frame(dt){
-  if(!G)return;g=mainG;G.hype=Math.max(0,G.hype-dt);G.cam.sh=Math.max(0,G.cam.sh-dt);
+  if(!G)return;g=mainG;{const ta=G.state==='live'?'none':'';if(document.body.style.touchAction!==ta){document.body.style.touchAction=ta;document.body.style.userSelect=ta?'none':'';document.body.style.webkitUserSelect=ta?'none':'';}}
+  G.hype=Math.max(0,G.hype-dt);G.cam.sh=Math.max(0,G.cam.sh-dt);
   if(G.state==='live')updateLive(dt);
   drawWorld(dt);
   if(G.state==='playcall')drawPlaycall();
   else if(G.state==='presnap'&&G.side==='def'){G.autoSnap-=dt;ctxt('YOU ARE ON DEFENSE',W/2,8,'#5fb7e8',2,'#05070f');g.fillStyle='rgba(5,7,15,.75)';g.fillRect(W/2-120,H-16,240,12);ctxt('MOVE: WASD   DIVE TACKLE: F   SWITCH: SHIFT',W/2,H-13,'#fff',1);if(G.autoSnap<=0)snap();}
   else if(G.state==='presnap'){if(Math.floor(T*2.5)%2)ctxt('TAP OR SPACE TO SNAP',W/2,H-14,'#fff',2,'#05070f');g.fillStyle='rgba(5,7,15,.8)';g.fillRect(4,4,74,13);txt('< CHANGE PLAY',8,8,'#ffd23f');ctxt(G.play.name,W/2,8,'#ffd23f',2,'#05070f');
-    if(G.play.type==='pass'){const x=W-132,y=22;g.fillStyle='rgba(5,7,15,.85)';g.fillRect(x,y,128,50);g.fillStyle='#ffd23f';g.fillRect(x,y,128,2);txt('HOW TO THROW',x+5,y+6,'#ffd23f');txt('1 PRESS AND DRAG BACK',x+5,y+15,'#eef1fb');txt('2 PULL FURTHER = THROW FURTHER',x+5,y+23,'#eef1fb');txt('3 RELEASE TO THROW',x+5,y+31,'#eef1fb');txt('OR TAP A RECEIVER / KEYS 1-4',x+5,y+41,'#97a5cc');}}
+    if(G.play.type==='pass'){const x=W-132,y=22;g.fillStyle='rgba(5,7,15,.85)';g.fillRect(x,y,128,50);g.fillStyle='#ffd23f';g.fillRect(x,y,128,2);txt('HOW TO THROW',x+5,y+6,'#ffd23f');txt('1 DRAG BACK ANYWHERE ON SCREEN',x+5,y+15,'#eef1fb');txt('2 PULL FURTHER = THROW FURTHER',x+5,y+23,'#eef1fb');txt('3 RELEASE TO THROW',x+5,y+31,'#eef1fb');txt('OR TAP A RECEIVER / KEYS 1-4',x+5,y+41,'#97a5cc');}}
   else if(G.state==='dead'){G.deadT-=dt;if(G.deadT<=0){const f=G.after;G.after=null;if(f)f();}}
   else if(G.state==='opp')drawOpp(dt);
   else if(G.state==='pat')drawPat();
@@ -887,19 +888,24 @@ cv.addEventListener('pointerdown',ev=>{ev.preventDefault();if(!G)return;try{cv.s
   const p=toL(ev),touch=ev.pointerType!=='mouse';
   if(G.state==='playcall'){for(let i=0;i<4;i++)if(inR(p,cardRect(i)))return choosePlay(i);if(inR(p,SPB.more)){dealPlays();SFX.ui();return;}if(inR(p,SPB.punt))return tryPunt();if(inR(p,SPB.fg))return tryFG();}
   else if(G.state==='presnap'){if(G.side!=='def'&&p.x<80&&p.y<20)toPlaycall();else snap();}
-  else if(G.state==='live'){if(touch&&p.x<W*.32)inp.joy={id:ev.pointerId,sx:p.x,sy:p.y,x:0,y:0};else if(G.side==='def')inp.juke=true;else if(G.phase==='pocket')inp.aim={id:ev.pointerId,sx:p.x,sy:p.y,cx:p.x,cy:p.y};}
+  else if(G.state==='live'){const pk=G.side!=='def'&&G.phase==='pocket';
+    if(pk&&!inp.aim)inp.aim={id:ev.pointerId,sx:p.x,sy:p.y,cx:p.x,cy:p.y};
+    else if(touch&&(pk||p.x<W*.32))inp.joy={id:ev.pointerId,sx:p.x,sy:p.y,x:0,y:0};
+    else if(G.side==='def')inp.juke=true;}
   else if(G.state==='kick')kickPress();
   else if(G.state==='pat'){if(inR(p,PATB.kick))patPick(false);else if(inR(p,PATB.two))patPick(true);}
   else if(G.state==='dead')skipDead();
   else if(G.state==='opp'){const d=G.od;if(d.t>d.L.length*.4)resolveOpp();else d.t=d.L.length*.4;}
 });
-cv.addEventListener('pointermove',ev=>{const p=toL(ev);if(inp.joy&&inp.joy.id===ev.pointerId){inp.joy.x=p.x-inp.joy.sx;inp.joy.y=p.y-inp.joy.sy;}if(inp.aim&&inp.aim.id===ev.pointerId){inp.aim.cx=p.x;inp.aim.cy=p.y;}});
+addEventListener('pointerdown',ev=>{if(!G||$('#game').hidden||ev.target===cv||!ev.target.closest||ev.target.closest('button,select,input,a'))return;
+  if(G.state==='live'&&G.side!=='def'&&G.phase==='pocket'&&!inp.aim){ac();const p=toL(ev);inp.aim={id:ev.pointerId,sx:p.x,sy:p.y,cx:p.x,cy:p.y};ev.preventDefault();}});
+addEventListener('pointermove',ev=>{const p=toL(ev);if(inp.joy&&inp.joy.id===ev.pointerId){inp.joy.x=p.x-inp.joy.sx;inp.joy.y=p.y-inp.joy.sy;}if(inp.aim&&inp.aim.id===ev.pointerId){inp.aim.cx=p.x;inp.aim.cy=p.y;}});
 function pUp(ev){if(inp.joy&&inp.joy.id===ev.pointerId)inp.joy=null;
   if(inp.aim&&inp.aim.id===ev.pointerId){const a=inp.aim;if(G&&G.state==='live'&&G.phase==='pocket'){const m=Math.hypot(a.sx-a.cx,a.sy-a.cy);
       if(m<6){const wp={x:a.cx+camX,y:a.cy};let b=null,bd=24;G.recs.forEach(r=>{const d=Math.hypot(r.x-wp.x,(r.y-9)-wp.y);if(d<bd){bd=d;b=r;}});if(b)leadThrow(b);}
       else{const t=aimTarget();throwTo(t.x,t.y);}}
     inp.aim=null;}}
-cv.addEventListener('pointerup',pUp);cv.addEventListener('pointercancel',ev=>{if(inp.joy&&inp.joy.id===ev.pointerId)inp.joy=null;if(inp.aim&&inp.aim.id===ev.pointerId)inp.aim=null;});
+addEventListener('pointerup',pUp);addEventListener('pointercancel',ev=>{if(inp.joy&&inp.joy.id===ev.pointerId)inp.joy=null;if(inp.aim&&inp.aim.id===ev.pointerId)inp.aim=null;});
 cv.addEventListener('contextmenu',e=>e.preventDefault());
 addEventListener('keydown',ev=>{if($('#game').hidden||!G)return;const c=ev.code;if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(c))ev.preventDefault();if(ev.repeat)return;inp.k[c]=true;ac();
   if(G.state==='playcall'){const n=parseInt(ev.key,10);if(n>=1&&n<=4)choosePlay(n-1);else if(c==='KeyM'){dealPlays();SFX.ui();}else if(c==='KeyP')tryPunt();else if(c==='KeyF')tryFG();}
@@ -926,7 +932,7 @@ $('#muteBtn').addEventListener('click',()=>{muted=!muted;$('#muteBtn').textConte
 
 /* ---------- screens ---------- */
 const SCREENS=['title','pick','hub','game','post','off'];
-function show(id){SCREENS.forEach(s=>{$('#'+s).hidden=s!==id;});window.scrollTo(0,0);if(id==='title'){mkDemo();renderSaves();}}
+function show(id){SCREENS.forEach(s=>{$('#'+s).hidden=s!==id;});document.body.style.touchAction='';document.body.style.userSelect='';document.body.style.webkitUserSelect='';window.scrollTo(0,0);if(id==='title'){mkDemo();renderSaves();}}
 function demoRoster(){const o={};['QB','RB','WR1','WR2','TE','OL','K','DL','LB','CB','S'].forEach(k=>o[k]=mkPlayer(k.replace(/\d/,''),6));return o;}
 let demoG=null;
 function mkDemo(){const keep=G;const a=ri(0,TEAMS.length-1);let b=ri(0,TEAMS.length-1);if(b===a)b=(a+1)%TEAMS.length;
