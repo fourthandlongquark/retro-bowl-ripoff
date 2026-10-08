@@ -27,6 +27,7 @@ button:hover{border-color:var(--gold)} button:active{transform:translateY(2px);b
 button:focus-visible,select:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 button.go{background:var(--gold);color:#241800;border-color:#b98500}
 button.sm{font-size:9px;padding:6px 8px}
+button small{display:block;font-family:var(--body);font-size:16px;color:var(--gold);text-transform:none;margin-top:4px}
 button:disabled{opacity:.4;cursor:not-allowed}
 select{font-family:var(--body);font-size:21px;background:var(--panel2);color:var(--ink);border:2px solid var(--line);padding:4px 8px}
 h2{font-family:var(--display);font-size:13px;color:var(--gold);margin:0 0 10px;text-wrap:balance;line-height:1.5}
@@ -84,15 +85,15 @@ ul{margin:0;padding-left:20px}
     <canvas id="tcv" width="480" height="270" aria-label="Game preview"></canvas>
     <div class="row">
       <button id="btnContinue" class="go" hidden>Continue career</button>
-      <button id="btnNew" class="go">New career</button>
+      <button id="btnNew" class="go">New career</button><span class="dim" id="saveNote"></span>
     </div>
     <div class="panel col">
       <h2>How it plays</h2>
       <p>You are the quarterback and the head coach. Call a play from a 39-play book built on real football concepts (you get four that fit the down, and can swap for four more), snap it, find the open receiver, then run after the catch. On Easy and Normal your defense plays on its own, and how good it is depends on your roster. On Hard and Legend you play defense too: you control one defender at a time, chase the ball, and dive to make the tackle.</p>
       <p><span class="gold">Throw:</span> press anywhere, drag back like a slingshot, and release. The ball goes the opposite way, and the further you pull, the further it flies. A dotted arc and a yard count show where it will land. You can also click or tap a receiver for a quick led pass. Keys <kbd>1</kbd>–<kbd>4</kbd> also throw to the numbered receiver. A green number is open, red is covered.</p>
       <p><span class="gold">Interceptions:</span> defenders can pick the ball off two ways. They can jump in front of a low throw while it is in the air, or beat your receiver to the spot where it lands. The yard count turns red and says DEFENDER when one is sitting where you are aiming. Throw over them with a longer pull, or pick someone else.</p>
-      <p><span class="gold">Run:</span> <kbd>WASD</kbd> or arrows (on a phone, drag the left side of the field). <kbd>F</kbd> or <kbd>Space</kbd> dives for extra yards, or slides when you scramble with the QB. <kbd>Shift</kbd> jukes a tackler. Turn on <span class="gold">Auto juke</span> under the field and your runner jukes on his own, but it only fools the tackler about 6 times in 10. A juke you time yourself always works. Hit a receiver <span class="gold">in stride</span>, while he is running upfield, and he gets a burst of speed after the catch. Right after any catch the nearest defenders are a step slow, and your receiver will usually shake the first tackler on his own. Once the ball is caught the defense speeds up a little to chase.</p>
-      <p><span class="gold">Defense (Hard and Legend only):</span> your player has a gold ring. <kbd>WASD</kbd> moves him, <kbd>F</kbd> or <kbd>Space</kbd> dives at the ball carrier, <kbd>Shift</kbd> (or a tap on the field) switches to the defender nearest the ball. You have to make every stop yourself: teammates cover and can wrap a runner up to slow him, but only your player can finish the tackle, knock a pass down, or intercept it. If you never get there, a wrapped-up runner goes down after a second or two.</p>
+      <p><span class="gold">Run:</span> <kbd>WASD</kbd> or arrows (on a phone, drag the left side of the field). <kbd>F</kbd> or <kbd>Space</kbd> dives for extra yards, or slides when you scramble with the QB. <kbd>Shift</kbd> jukes a tackler. Turn on <span class="gold">Auto juke</span> under the field and your runner jukes on his own, but it only fools the tackler about 6 times in 10, and after the first one or two in a play it almost always fails. A higher DOD rating gives him more good auto jukes per play (up to three). A juke you time yourself always works. Hit a receiver <span class="gold">in stride</span>, while he is running upfield, and he gets a burst of speed after the catch. Right after any catch the nearest defenders are a step slow, and your receiver will usually shake the first tackler on his own. Once the ball is caught the defense speeds up a little to chase.</p>
+      <p><span class="gold">Defense (Hard and Legend only):</span> your player has a gold ring. <kbd>WASD</kbd> moves him, <kbd>F</kbd> or <kbd>Space</kbd> dives at the ball carrier, <kbd>Shift</kbd> (or a tap on the field) switches to the defender nearest the ball. Making the stop is mostly your job. Teammates cover, and sometimes make the tackle or knock a pass down themselves, but more often they only wrap the runner up and slow him until you get there to finish it.</p>
       <p><span class="gold">Celebrate:</span> press <kbd>G</kbd> right after a touchdown, a first down, a big gain, a sack or an interception to show off. Press it again for a different move.</p>
       <p><span class="gold">Career:</span> 11 games, a four-team playoff, and the Pixel Bowl. Every player has a level from 1 to 100 built from ratings like speed, diving and dodging, and earns XP to raise them, you earn money to buy better players and a bigger fan base, and you draft rookies every offseason.</p>
     </div>
@@ -121,10 +122,10 @@ ul{margin:0;padding-left:20px}
       <div id="ticker"></div>
     </div>
     <div id="pad">
-      <div class="acts"><button id="btnJuke">Juke</button><button id="btnAuto" class="sm">Auto juke: off</button><button id="btnDive">Dive / Slide</button></div>
-      <button id="btnCel" class="sm">Celebrate (G)</button><button id="btnQuit" class="sm">Leave game</button>
+      <div class="acts"><button id="btnJuke">Juke<small>key: Shift</small></button><button id="btnAuto" class="sm">Auto juke: off</button><button id="btnDive">Dive / Slide<small>key: F</small></button></div>
+      <button id="btnCel" class="sm">Celly<small>key: G</small></button><button id="btnQuit" class="sm">Leave game</button>
     </div>
-    <p class="hint">Tap a receiver or drag back to throw. <kbd>WASD</kbd> move · <kbd>Space</kbd> snap · <kbd>F</kbd> dive or slide · <kbd>Shift</kbd> juke · <kbd>G</kbd> celebrate · <kbd>1</kbd>–<kbd>4</kbd> quick throw</p>
+    <p class="hint">Tap a receiver or drag back to throw. <kbd>WASD</kbd> move · <kbd>Space</kbd> snap · <kbd>F</kbd> dive or slide · <kbd>Shift</kbd> juke · <kbd>G</kbd> celly (celebrate after a big play) · <kbd>1</kbd>–<kbd>4</kbd> quick throw</p>
   </section>
 
   <section id="post" class="col" hidden></section>
@@ -454,7 +455,7 @@ function fgDist(){return 100-G.yl+17;}
 function fgMax(){return 34+G.r.K.g.PWR*2.6;}
 function choosePlay(i){const P=PLAYS[G.hand[i]];if(!P)return;if(P.punt)return doPunt();G.play=P;setFormation(G.play);G.state='presnap';SFX.ui();}
 function snap(){
-  const P=G.play;G.state='live';G.pt=0;G.phase=P.type==='run'?'hand':'pocket';G.thrown=false;G.caught=null;G.qbRun=false;G.tgt=null;G.tgtDef=null;G.brkN=0;SFX.snap();G.aiT=rnd(1.2,2.4);
+  const P=G.play;G.state='live';G.pt=0;G.phase=P.type==='run'?'hand':'pocket';G.thrown=false;G.caught=null;G.qbRun=false;G.tgt=null;G.tgtDef=null;G.brkN=0;G.pt0=Math.random();SFX.snap();G.aiT=rnd(1.2,2.4);
   const blk=G.r.OL.g.BLK,dr=DR();
   if(P.type==='run')G.def.forEach(d=>{if(d.role==='LB'){d.slowT=P.lb||.6;if(P.react)d.react=P.react;}});
   if(P.pa)G.def.forEach(d=>{if(d.role==='LB')d.slowT=1.1;else if(d.role!=='DL')d.slowT=.45;});
@@ -496,20 +497,20 @@ function resolveBall(){
   const dR=r?ed(r,lp):99,nd=nearestDef(lp,false),dD=nd.dist,cat=r?r.p.g.CAT:5,dr=DR();
   if(!oob&&dR<=10){
     let p=.8+cat*.02+G.oc*.025;const cont=dD<7.5;if(cont)p-=.17+(dr-60)/220+DK()*.5;
-    if(cont&&dD<dR&&(G.side!=='def'||nd.d===G.ctl)&&Math.random()<.11+(dr-60)/300+DK()*.4+(G.side==='def'?.35:0))return intercept(nd.d);
+    if(cont&&dD<dR&&(G.side!=='def'||nd.d===G.ctl||Math.random()<.4)&&Math.random()<.11+(dr-60)/300+DK()*.4+(G.side==='def'?.35:0))return intercept(nd.d);
     if(Math.random()<p){G.caught=r;G.carrier=r;r.hasBall=true;b.vis=false;G.phase='run';r.brk=0;setAnim(r,'catch',.12);SFX.cat();
       if(G.side==='def'){const n=nearestDef(r,true).d;if(n)G.ctl=n;}else{r.freeJ=1.6;G.def.forEach(d=>{if(ed(d,r)<14){d.slowT=.3;d.tkCd=.25;}});}
       if(r.vx>r.spd*.55){r.strideT=1.8;float('IN STRIDE!',r.x,r.y-22,'#ffd23f');}else{r.slowT=.1;float('CATCH!',r.x,r.y-22,'#5bdb85');}
       if(r.x>=GOALX)endPlay('td');return;}
     float(cont?'BROKEN UP':'DROPPED',lp.x,lp.y-18,'#ff6257');return endPlay('inc');}
-  if(!oob&&dD<=8&&(G.side!=='def'||nd.d===G.ctl)&&Math.random()<.4+DK())return intercept(nd.d);
+  if(!oob&&dD<=8&&(G.side!=='def'||nd.d===G.ctl||Math.random()<.4)&&Math.random()<.4+DK())return intercept(nd.d);
   float(oob?'OUT OF BOUNDS':'INCOMPLETE',clamp(lp.x,camX+30,camX+W-60),clamp(lp.y,FT+10,FB)-14,'#ff6257');endPlay('inc');
 }
 function intercept(d){G.ball.vis=false;d.hasBall=true;setAnim(d,pick(['celebrate','dance','flex']),3);G.def.forEach(x=>{if(x!==d&&x.downT<=0)setAnim(x,'celebrate',3);});G.intBy=d;endPlay('int');}
 function tryTackle(d,c){
   if(c.diveT>0||d.tkCd>0)return;
   if(c.freeJ>0&&!(c.jukeT>0)&&Math.random()<.35-DK()){c.freeJ=0;c.jukeT=.25;c.autoJ=false;setAnim(c,'juke',.25);SFX.juke();}else if(c.freeJ>0)c.freeJ=0;
-  if(c.jukeT>0&&!(c.autoJ&&Math.random()<.4)){d.downT=1.1;d.tkCd=1.4;setAnim(d,'fall',1.1);float('JUKED!',d.x,d.y-20,'#ffd23f');return;}
+  if(c.jukeT>0&&!(c.autoJ&&Math.random()<(G.side==='def'?.4:(c.ajN||0)>1+Math.floor((c.p.g.DOD||5)/3.5)?.85:.4))){d.downT=1.1;d.tkCd=1.4;setAnim(d,'fall',1.1);float('JUKED!',d.x,d.y-20,'#ffd23f');return;}
   if(G.phase==='run'&&(c.brk||0)<2&&Math.random()<clamp(((c.p&&c.p.g.STR||5)-3)*.045-DK()*.4,0,.32)){c.brk=(c.brk||0)+1;d.downT=.9;d.tkCd=1.3;setAnim(d,'fall',.9);c.slowT=.35;float('BROKEN TACKLE',c.x,c.y-22,'#ffd23f');SFX.hit();return;}
   G.lastTk=d;setAnim(d,'tackle',3);d.face=c.x>=d.x?1:-1;setAnim(c,'down',3);G.cam.sh=.25;SFX.hit();
   puff(c.x,c.y,10,G.weather==='snow'?['#fff','#dfe9ec']:['#3fbf5e','#1e7b3c','#6b4a2a']);
@@ -559,12 +560,12 @@ function giveOpp(s){
   if(G.ot){G.oppScore+=3;say(`The ${G.opp.name} take over and kick the winner in overtime.`);return finish();}
   const k=tickClock(false);if(k==='end')return finish();if(k==='half')s=25;oppDrive(s);}
 let playDef=true;try{playDef=localStorage.getItem('fal_playdef')!=='0';}catch(e){}
-function setPad(){const d=G&&G.side==='def';$('#btnJuke').textContent=d?'Switch player':'Juke';$('#btnDive').textContent=d?'Dive tackle':'Dive / Slide';}
+function setPad(){const d=G&&G.side==='def';$('#btnJuke').innerHTML=(d?'Switch player':'Juke')+'<small>key: Shift</small>';$('#btnDive').innerHTML=(d?'Dive tackle':'Dive / Slide')+'<small>key: F</small>';}
 function switchCtl(){const t=G.ball.fly?{x:G.ball.tx,y:G.ball.ty}:(G.carrier||G.qb);let b=null,bd=1e9;G.def.forEach(d=>{if(d===G.ctl||d.downT>0||d.shedT>0)return;const dd=ed(d,t);if(dd<bd){bd=dd;b=d;}});if(b){G.ctl=b;SFX.ui();}}
 function startDefDrive(s){
   if(G.side!=='def'){G.sv={r:G.r,cO:G.cO,cD:G.cD,live:G.live,oc:G.oc};G.r=G.oppRoster;G.cO=G.sv.cD;G.cD=G.sv.cO;G.live=1;G.oc=0;G.side='def';buildField();setPad();}
   G.poss='def';G.yl=clamp(Math.round(s),1,95);G.down=1;G.toGo=Math.min(10,100-G.yl);G.by=MID;banner('DEFENSE','STOP THE '+G.opp.name.toUpperCase(),'#5fb7e8',1.2);
-  say('You have to make the stop yourself. Teammates can only slow the runner down. Chase with the circled player, press F to dive, Shift to switch to the nearest defender.');defNext();}
+  say('Making the stop is mostly your job. Teammates sometimes make the tackle, but usually they only wrap the runner up. Chase with the circled player, press F to dive, Shift to switch.');defNext();}
 function restoreCtx(){if(G.side!=='def')return;Object.assign(G,G.sv);G.side='off';G.ctl=null;buildField();setPad();}
 function defNext(){
   if(G.down===4&&!(G.toGo<=1&&G.yl>55)){const dist=100-G.yl+17;
@@ -670,7 +671,7 @@ function updateLive(dt){
     if(car.diveT>0){car.diveT-=dt;car.vx=car.spd*(car.sliding?.9:1.5);car.vy=0;if(car.diveT<=0){car.x+=0;return endPlay(car.sliding?'slide':'dive');}}
     else{
       if(dive){car.diveT=.2+(car.p.g.DIV||5)*.022;car.sliding=car===qb;setAnim(car,car.sliding?'slide':'dive',3);car.face=1;SFX.juke();}
-      else{const aj=autoJuke&&!def&&!juke&&nearestDef(car,true).dist<12;if((juke||aj)&&(car.jukeCd||0)<=0){car.autoJ=aj||def;car.jukeT=.18+(car.p.g.DOD||5)*.026;car.jukeCd=1.7-(car.p.g.DOD||5)*.09;const nd=nearestDef(car,true).d;const dir=mv.y?Math.sign(mv.y):(nd&&nd.y>car.y?-1:1);car.vy=(car.y<FT+24?1:car.y>FB-24?-1:dir)*120;setAnim(car,'juke',.3);SFX.juke();}
+      else{const aj=autoJuke&&!def&&!juke&&nearestDef(car,true).dist<12;if((juke||aj)&&(car.jukeCd||0)<=0){car.autoJ=aj||def;car.jukeT=.18+(car.p.g.DOD||5)*.026;car.jukeCd=1.7-(car.p.g.DOD||5)*.09;const nd=nearestDef(car,true).d;const dir=mv.y?Math.sign(mv.y):(nd&&nd.y>car.y?-1:1);car.vy=(car.y<FT+24?1:car.y>FB-24?-1:dir)*(aj?55:75);if(aj)car.ajN=(car.ajN||0)+1;setAnim(car,'juke',.3);SFX.juke();}
         let dx=mv.x,dy=mv.y;if(!dx&&!dy){if(P.dirAbs&&G.pt<P.dirAbs[2]+.5){dx=P.dirAbs[0];dy=P.dirAbs[1];}else if(P.dir&&G.pt<P.dir[2]){dx=P.dir[0];dy=-P.dir[1]*G.sweepDir;}else{dx=1;dy=0;}}
         const s=car.spd*.9*(car.strideT>0?1.2:1)*(car.slowT>0?.5:1)*(car.jukeT>0?.75:1);if(!(car.jukeT>0))steer(car,dx*s,dy*s*.8,dt);else steer(car,dx*s,car.vy,dt*.3);}
     }
@@ -731,7 +732,7 @@ function updateLive(dt){
     if(e!==car&&!(e===qb&&G.phase==='pocket')){e.y=clamp(e.y,FT+3,FB-2);e.x=clamp(e.x,3,WW-5);}});
   qb.x=Math.max(qb.x,4);if(G.phase==='pocket')qb.y=clamp(qb.y,FT+2,FB-1);
   /* ball */
-  if(G.ball.fly){const b=G.ball;b.t+=dt;const k=Math.min(1,b.t/b.T);b.x=b.sx+(b.tx-b.sx)*k;b.y=b.sy+(b.ty-b.sy)*k;b.z=8*(1-k)+Math.sin(Math.PI*k)*b.h+6*k;if(k>.12&&k<.8&&b.z<15)for(const d of G.def){if(d.downT>0||d.shedT>0||d.pickTry===b.t0||G.side==='def'&&d!==G.ctl)continue;if(ed(d,b)<6){d.pickTry=b.t0;const x=Math.random(),pi=.22+(DR()-60)/250+DK();
+  if(G.ball.fly){const b=G.ball;b.t+=dt;const k=Math.min(1,b.t/b.T);b.x=b.sx+(b.tx-b.sx)*k;b.y=b.sy+(b.ty-b.sy)*k;b.z=8*(1-k)+Math.sin(Math.PI*k)*b.h+6*k;if(k>.12&&k<.8&&b.z<15)for(const d of G.def){if(d.downT>0||d.shedT>0||d.pickTry===b.t0||G.side==='def'&&d!==G.ctl&&Math.random()<.6)continue;if(ed(d,b)<6){d.pickTry=b.t0;const x=Math.random(),pi=.22+(DR()-60)/250+DK();
         if(x<pi){b.fly=false;b.tx=b.x;b.ty=b.y;float('JUMPED THE ROUTE!',d.x,d.y-22,'#ff6257');return intercept(d);}
         if(x<pi+.35){b.fly=false;b.tx=b.x;b.ty=b.y;b.z=0;setAnim(d,'catch',.5);float('TIPPED AWAY',d.x,d.y-22,'#ff6257');return endPlay('inc');}}}
     if(k>=1)return resolveBall();}
@@ -741,7 +742,8 @@ function updateLive(dt){
     if(holder.lockT<=0&&holder!==qb||holder===qb&&G.phase==='run'&&holder.lockT<=0)holder.anim='runball',Math.abs(holder.vx)>4&&(holder.face=holder.vx>0?1:-1);
     if(G.phase==='run'){if(holder.x>=GOALX+2)return endPlay('td');if(holder.y<FT||holder.y>FB)return endPlay('oob');holder.x=clamp(holder.x,3,WW-5);}
     for(const d of G.def){if(d.downT>0||d.shedT>0)continue;const dd=ed(d,holder);
-      if(G.side==='def'&&d!==G.ctl){if(dd<7.5){holder.slowT=.2;holder.heldT=(holder.heldT||0)+dt;if(!(holder.heldF>0)){holder.heldF=1;float('WRAPPED UP - FINISH HIM!',holder.x,holder.y-24,'#ffd23f');}if(holder.heldT>1.6){tryTackle(d,holder);if(G.state!=='live')return;}}continue;}
+      if(G.side==='def'&&d!==G.ctl){if(dd<7.5){if(d.wrapTry!==G.pt0){d.wrapTry=G.pt0;if(Math.random()<.4){tryTackle(d,holder);if(G.state!=='live')return;continue;}}
+          holder.slowT=.2;holder.heldT=(holder.heldT||0)+dt;if(!(holder.heldF>0)){holder.heldF=1;float('WRAPPED UP - FINISH HIM!',holder.x,holder.y-24,'#ffd23f');}if(holder.heldT>.8){tryTackle(d,holder);if(G.state!=='live')return;}}continue;}
       if(dd<(d.lungeT>0?(d===G.ctl?15:11):(d===G.ctl?8.5:6.5))){tryTackle(d,holder);if(G.state!=='live')return;}
       else if(dd<15&&!(d.lungeT>0)&&d!==G.ctl&&G.side!=='def'&&!(d.tkCd>0)&&G.phase==='run'&&Math.random()<dt*1.6){const dx=holder.x+holder.vx*.15-d.x,dy=holder.y+holder.vy*.15-d.y,m=Math.hypot(dx,dy)||1;d.vx=dx/m*d.spd*1.7;d.vy=dy/m*d.spd*1.7;d.lungeT=.2;setAnim(d,'tackle',.5);d.face=d.vx>=0?1:-1;}}
   }
@@ -922,7 +924,7 @@ function statLine(p){const s=p.st||{};if(p.pos==='QB')return `${s.pc||0}/${s.pa|
 function renderHub(){
   const me=TEAMS[C.team],t=C.teams[C.team],f=fixture();const sp=C.roster.reduce((s,p)=>s+p.sp,0);
   let h=`<div class="panel col"><div class="row" style="justify-content:space-between">
-    <div><h2>${esc(me.city)} ${esc(me.name)}</h2><p>Season ${C.season} · <span class="gold">${recStr(t)}</span> · <span class="good">${cash(C.credits)}</span> · ${C.titles} Pixel Bowl title${C.titles===1?'':'s'}</p></div>
+    <div><h2>${esc(me.city)} ${esc(me.name)}</h2><p class="dim">Progress saves automatically in this browser after every game and every purchase.</p><p>Season ${C.season} · <span class="gold">${recStr(t)}</span> · <span class="good">${cash(C.credits)}</span> · ${C.titles} Pixel Bowl title${C.titles===1?'':'s'}</p></div>
     <div class="row"><span class="chip">TEAM ${stars((offRating()+defRating())/2)}</span><span class="chip">OFF ${offRating()}</span><span class="chip">DEF ${defRating()}</span></div></div>
     <div class="tabs" role="tablist">${[['home','Locker room'],['roster','Roster'+(sp?' ('+sp+')':'')],['table','Standings'],['sched','Schedule'],['office','Front office']].map(([k,l])=>`<button role="tab" aria-selected="${hubTab===k}" data-tab="${k}" class="sm">${l}</button>`).join('')}</div></div>`;
   if(hubTab==='home'){
@@ -1024,7 +1026,7 @@ function loop(ts){const dt=Math.min(.05,(ts-lastT)/1000||0);lastT=ts;T+=dt;
     G.hype=0;drawWorld(dt);g.fillStyle='rgba(5,7,15,.72)';g.fillRect(0,70,W,72);g.fillStyle='#ffd23f';g.fillRect(0,70,W,2);g.fillRect(0,140,W,2);ctxt('FOURTH & LONG',W/2,84,'#ffd23f',5,'#7a3b00');ctxt('BE THE QUARTERBACK. BUILD THE DYNASTY.',W/2,122,'#eef1fb',2,'#05070f');
     G=k;fieldCv=f;crowdCv=c[0];crowdG=c[1];}
   requestAnimationFrame(loop);}
-if(load())$('#btnContinue').hidden=false;
+{const sv=load();if(sv){$('#btnContinue').hidden=false;$('#saveNote').textContent=`Saved: ${TEAMS[sv.team].name}, season ${sv.season}, ${sv.teams[sv.team].w}-${sv.teams[sv.team].l}`;}}
 show('title');requestAnimationFrame(loop);
 window.__fal={step:n=>{for(let i=0;i<n;i++){T+=.033;frame(.033);}},get G(){return G},get C(){return C},PLAYS,leadThrow,choosePlay,snap,nearestDef,resolveOpp,kickPress,inp};
 })();
