@@ -27,6 +27,7 @@ button:hover{border-color:var(--gold)} button:active{transform:translateY(2px);b
 button:focus-visible,select:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 button.go{background:var(--gold);color:#241800;border-color:#b98500}
 button.sm{font-size:9px;padding:6px 8px}
+button .badge{display:inline-block;min-width:18px;padding:3px 5px;margin-left:6px;background:var(--red);color:#fff;border-radius:9px;font-size:8px;line-height:1;text-align:center}
 button small{display:block;font-family:var(--body);font-size:16px;color:var(--gold);text-transform:none;margin-top:4px}
 button:disabled{opacity:.4;cursor:not-allowed}
 input{font-family:var(--body);font-size:21px;background:var(--panel2);color:var(--ink);border:2px solid var(--line);padding:4px 8px;width:11em;max-width:100%}
@@ -955,11 +956,11 @@ function statLine(p){const s=p.st||{};if(p.pos==='QB')return `${s.pc||0}/${s.pa|
   if(p.pos==='RB')return `${s.ra||0} car, ${s.ry||0} yds, ${(s.rtd||0)+(s.rectd||0)} TD`;if(p.pos==='WR'||p.pos==='TE')return `${s.rec||0} rec, ${s.recy||0} yds, ${s.rectd||0} TD`;
   if(p.pos==='K')return `${s.fgm||0}/${s.fga||0} FG, ${s.xpm||0} XP`;return '';}
 function renderHub(){
-  const me=TEAMS[C.team],t=C.teams[C.team],f=fixture();const sp=C.roster.reduce((s,p)=>s+p.sp,0);
+  const me=TEAMS[C.team],t=C.teams[C.team],f=fixture();const sp=C.roster.reduce((s,p)=>s+p.sp,0);const nR=sp+Math.floor(C.credits/2),nO=Math.max(0,canBuy().length-(C.credits>=2?1:0));
   let h=`<div class="panel col"><div class="row" style="justify-content:space-between">
-    <div><h2>${esc(me.city)} ${esc(me.name)} · COACH ${esc((C.name||'').toUpperCase())}</h2><p class="dim">Progress saves automatically under your name after every game and every purchase.</p><p>Season ${C.season} · <span class="gold">${recStr(t)}</span> · <span class="good">${cash(C.credits)}</span> · ${C.titles} Pixel Bowl title${C.titles===1?'':'s'}</p></div>
+    <div><h2>${esc(me.city)} ${esc(me.name)} · COACH ${esc((C.name||'').toUpperCase())}</h2><p class="dim">Progress saves automatically under your name after every game and every purchase. A red number on a tab means there is something you can buy or upgrade there.</p><p>Season ${C.season} · <span class="gold">${recStr(t)}</span> · <span class="good">${cash(C.credits)}</span> · ${C.titles} Pixel Bowl title${C.titles===1?'':'s'}</p></div>
     <div class="row"><span class="chip">TEAM ${stars((offRating()+defRating())/2)}</span><span class="chip">OFF ${offRating()}</span><span class="chip">DEF ${defRating()}</span></div></div>
-    <div class="tabs" role="tablist">${[['home','Locker room'],['roster','Roster'+(sp?' ('+sp+')':'')],['table','Standings'],['sched','Schedule'],['office','Front office']].map(([k,l])=>`<button role="tab" aria-selected="${hubTab===k}" data-tab="${k}" class="sm">${l}</button>`).join('')}</div></div>`;
+    <div class="tabs" role="tablist">${[['home','Locker room',0],['roster','Roster',nR],['table','Standings',0],['sched','Schedule',0],['office','Front office',nO]].map(([k,l,n])=>`<button role="tab" aria-selected="${hubTab===k}" data-tab="${k}" class="sm">${l}${n?` <span class="badge" title="${k==='roster'?'Upgrades you can make here':'Things you can afford here'}">${n}</span>`:''}</button>`).join('')}</div></div>`;
   if(hubTab==='home'){
     if(f){const o=TEAMS[f.opp],ot=C.teams[f.opp];h+=`<div class="panel col"><h3>${esc(f.label.toUpperCase())}${f.po?' · WIN OR GO HOME':''}</h3>
       <div class="vs"><span class="big" style="color:${me.c1}">${me.ab}</span><span class="dim">vs</span><span class="big" style="color:${o.c1}">${o.ab}</span></div>
