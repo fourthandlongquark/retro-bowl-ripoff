@@ -85,7 +85,7 @@ ul{margin:0;padding-left:20px}
       <p><span class="gold">Throw:</span> press anywhere, drag back like a slingshot, and release. The ball goes the opposite way, and the further you pull, the further it flies. A dotted arc and a yard count show where it will land. You can also click or tap a receiver for a quick led pass. Keys <kbd>1</kbd>–<kbd>4</kbd> also throw to the numbered receiver. A green number is open, red is covered.</p>
       <p><span class="gold">Interceptions:</span> defenders can pick the ball off two ways. They can jump in front of a low throw while it is in the air, or beat your receiver to the spot where it lands. The yard count turns red and says DEFENDER when one is sitting where you are aiming. Throw over them with a longer pull, or pick someone else.</p>
       <p><span class="gold">Run:</span> <kbd>WASD</kbd> or arrows (on a phone, drag the left side of the field). <kbd>F</kbd> or <kbd>Space</kbd> dives for extra yards, or slides when you scramble with the QB. <kbd>Shift</kbd> jukes a tackler. Turn on <span class="gold">Auto juke</span> under the field and your runner jukes on his own, but it only fools the tackler about 6 times in 10. A juke you time yourself always works. Hit a receiver <span class="gold">in stride</span>, while he is running upfield, and he gets a burst of speed after the catch. Right after any catch the nearest defenders are a step slow, and your receiver will usually shake the first tackler on his own. Once the ball is caught the defense speeds up a little to chase.</p>
-      <p><span class="gold">Defense (Hard and Legend only):</span> your player has a gold ring. <kbd>WASD</kbd> moves him, <kbd>F</kbd> or <kbd>Space</kbd> dives at the ball carrier, <kbd>Shift</kbd> (or a tap on the field) switches to the defender nearest the ball. Let go of the keys and he covers on his own. Be near the ball when it lands to pick it off.</p>
+      <p><span class="gold">Defense (Hard and Legend only):</span> your player has a gold ring. <kbd>WASD</kbd> moves him, <kbd>F</kbd> or <kbd>Space</kbd> dives at the ball carrier, <kbd>Shift</kbd> (or a tap on the field) switches to the defender nearest the ball. You have to make every stop yourself: teammates cover and can wrap a runner up to slow him, but only your player can finish the tackle, knock a pass down, or intercept it. If you never get there, a wrapped-up runner goes down after a second or two.</p>
       <p><span class="gold">Celebrate:</span> press <kbd>G</kbd> right after a touchdown, a first down, a big gain, a sack or an interception to show off. Press it again for a different move.</p>
       <p><span class="gold">Career:</span> 11 games, a four-team playoff, and the Pixel Bowl. Every player has a level from 1 to 100 built from ratings like speed, diving and dodging, and earns XP to raise them, you earn money to buy better players and a bigger fan base, and you draft rookies every offseason.</p>
     </div>
@@ -353,7 +353,7 @@ function drawPlayer(e){
   R(-3,-11+b,6,6,c.j);R(-4,-11+b,8,2,c.jl);R(-1,-8+b,2,2,c.h);
   R(-2,-16+b,5,5,c.h);R(-1,-16+b,3,1,c.hl);R(1,-14+b,2,2,sk);R(3,-14+b,1,3,'#d5dbe8');
   arm(2,p.a1||'down');
-  if(e.hasBall&&p.ball){if(p.ball===2)R(-3,-16+b,3,2,'#8a4b1f');else R(3,-8+b,3,2,'#8a4b1f');}
+  if(e.hasBall&&p.ball){if(p.ball===2){R(-4,-17+b,5,3,'#2b1608');R(-3,-16+b,3,1,'#a85a22');}else{R(2,-9+b,5,4,'#2b1608');R(3,-8+b,3,2,'#a85a22');R(4,-8+b,1,1,'#fff');}}
 }
 
 /* ---------- game state ---------- */
@@ -489,13 +489,13 @@ function resolveBall(){
   const dR=r?ed(r,lp):99,nd=nearestDef(lp,false),dD=nd.dist,cat=r?r.p.g.CAT:5,dr=DR();
   if(!oob&&dR<=10){
     let p=.8+cat*.02+G.oc*.025;const cont=dD<7.5;if(cont)p-=.17+(dr-60)/220+DK()*.5;
-    if(cont&&dD<dR&&Math.random()<.11+(dr-60)/300+DK()*.4+(G.side==='def'&&nd.d===G.ctl?.3:0))return intercept(nd.d);
+    if(cont&&dD<dR&&(G.side!=='def'||nd.d===G.ctl)&&Math.random()<.11+(dr-60)/300+DK()*.4+(G.side==='def'?.35:0))return intercept(nd.d);
     if(Math.random()<p){G.caught=r;G.carrier=r;r.hasBall=true;b.vis=false;G.phase='run';r.brk=0;setAnim(r,'catch',.12);SFX.cat();
       if(G.side==='def'){const n=nearestDef(r,true).d;if(n)G.ctl=n;}else{r.freeJ=1.6;G.def.forEach(d=>{if(ed(d,r)<14){d.slowT=.3;d.tkCd=.25;}});}
       if(r.vx>r.spd*.55){r.strideT=1.8;float('IN STRIDE!',r.x,r.y-22,'#ffd23f');}else{r.slowT=.1;float('CATCH!',r.x,r.y-22,'#5bdb85');}
       if(r.x>=GOALX)endPlay('td');return;}
     float(cont?'BROKEN UP':'DROPPED',lp.x,lp.y-18,'#ff6257');return endPlay('inc');}
-  if(!oob&&dD<=8&&Math.random()<.4+DK())return intercept(nd.d);
+  if(!oob&&dD<=8&&(G.side!=='def'||nd.d===G.ctl)&&Math.random()<.4+DK())return intercept(nd.d);
   float(oob?'OUT OF BOUNDS':'INCOMPLETE',clamp(lp.x,camX+30,camX+W-60),clamp(lp.y,FT+10,FB)-14,'#ff6257');endPlay('inc');
 }
 function intercept(d){G.ball.vis=false;d.hasBall=true;setAnim(d,pick(['celebrate','dance','flex']),3);G.def.forEach(x=>{if(x!==d&&x.downT<=0)setAnim(x,'celebrate',3);});G.intBy=d;endPlay('int');}
@@ -557,7 +557,7 @@ function switchCtl(){const t=G.ball.fly?{x:G.ball.tx,y:G.ball.ty}:(G.carrier||G.
 function startDefDrive(s){
   if(G.side!=='def'){G.sv={r:G.r,cO:G.cO,cD:G.cD,live:G.live,oc:G.oc};G.r=G.oppRoster;G.cO=G.sv.cD;G.cD=G.sv.cO;G.live=1;G.oc=0;G.side='def';buildField();setPad();}
   G.poss='def';G.yl=clamp(Math.round(s),1,95);G.down=1;G.toGo=Math.min(10,100-G.yl);G.by=MID;banner('DEFENSE','STOP THE '+G.opp.name.toUpperCase(),'#5fb7e8',1.2);
-  say('Your defense is on the field. You control the circled player. Move to chase, Space to dive at the ball carrier, Shift to switch player. Let go and he plays on his own.');defNext();}
+  say('You have to make the stop yourself. Teammates can only slow the runner down. Chase with the circled player, press F to dive, Shift to switch to the nearest defender.');defNext();}
 function restoreCtx(){if(G.side!=='def')return;Object.assign(G,G.sv);G.side='off';G.ctl=null;buildField();setPad();}
 function defNext(){
   if(G.down===4&&!(G.toGo<=1&&G.yl>55)){const dist=100-G.yl+17;
@@ -624,7 +624,7 @@ function startKick(type){
   G.ents=[];G.off=[];G.def=[];
   const k=ent({role:'K',team:'O',c:G.cO,x:sx-10,y:MID+4,p:K,skin:K.skin,anim:'idle'});const h=ent({role:'H',team:'O',c:G.cO,x:sx+2,y:MID+2,anim:'set',idle:'set'});
   G.ents.push(k,h);for(let i=0;i<5;i++){G.ents.push(ent({team:'O',c:G.cO,x:sx+7*YD-5,y:MID+(i-2)*11,anim:'set'}));G.ents.push(ent({team:'D',c:G.cD,face:-1,x:sx+7*YD+6,y:MID+(i-2)*11,anim:'set'}));}
-  G.kick={type,dist,ph:'aim',n:-1,dir:1,zone:clamp(.5-dist*.006+K.g.ACC*.014,.1,.6),sp:1.5+dist*.022,t:0,sx,k};
+  G.kick={type,dist,ph:'aim',n:-1,dir:1,zone:clamp(.27-dist*.004+K.g.ACC*.011,.05,.3),sp:1.9+dist*.026,t:0,sx,k};
   G.ball={fly:false,vis:true,x:sx+4,y:MID+2,z:0};G.cam.x=clamp(sx-120,0,WW-W);
   say(type==='xp'?'Extra point. Stop the needle in the green.':`${dist}-yard field goal attempt. Stop the needle in the green.`);updSB();
 }
@@ -724,7 +724,7 @@ function updateLive(dt){
     if(e!==car&&!(e===qb&&G.phase==='pocket')){e.y=clamp(e.y,FT+3,FB-2);e.x=clamp(e.x,3,WW-5);}});
   qb.x=Math.max(qb.x,4);if(G.phase==='pocket')qb.y=clamp(qb.y,FT+2,FB-1);
   /* ball */
-  if(G.ball.fly){const b=G.ball;b.t+=dt;const k=Math.min(1,b.t/b.T);b.x=b.sx+(b.tx-b.sx)*k;b.y=b.sy+(b.ty-b.sy)*k;b.z=8*(1-k)+Math.sin(Math.PI*k)*b.h+6*k;if(k>.12&&k<.8&&b.z<15)for(const d of G.def){if(d.downT>0||d.shedT>0||d.pickTry===b.t0)continue;if(ed(d,b)<6){d.pickTry=b.t0;const x=Math.random(),pi=.22+(DR()-60)/250+DK();
+  if(G.ball.fly){const b=G.ball;b.t+=dt;const k=Math.min(1,b.t/b.T);b.x=b.sx+(b.tx-b.sx)*k;b.y=b.sy+(b.ty-b.sy)*k;b.z=8*(1-k)+Math.sin(Math.PI*k)*b.h+6*k;if(k>.12&&k<.8&&b.z<15)for(const d of G.def){if(d.downT>0||d.shedT>0||d.pickTry===b.t0||G.side==='def'&&d!==G.ctl)continue;if(ed(d,b)<6){d.pickTry=b.t0;const x=Math.random(),pi=.22+(DR()-60)/250+DK();
         if(x<pi){b.fly=false;b.tx=b.x;b.ty=b.y;float('JUMPED THE ROUTE!',d.x,d.y-22,'#ff6257');return intercept(d);}
         if(x<pi+.35){b.fly=false;b.tx=b.x;b.ty=b.y;b.z=0;setAnim(d,'catch',.5);float('TIPPED AWAY',d.x,d.y-22,'#ff6257');return endPlay('inc');}}}
     if(k>=1)return resolveBall();}
@@ -733,8 +733,10 @@ function updateLive(dt){
   if(holder&&G.state==='live'){
     if(holder.lockT<=0&&holder!==qb||holder===qb&&G.phase==='run'&&holder.lockT<=0)holder.anim='runball',Math.abs(holder.vx)>4&&(holder.face=holder.vx>0?1:-1);
     if(G.phase==='run'){if(holder.x>=GOALX+2)return endPlay('td');if(holder.y<FT||holder.y>FB)return endPlay('oob');holder.x=clamp(holder.x,3,WW-5);}
-    for(const d of G.def){if(d.downT>0||d.shedT>0)continue;const dd=ed(d,holder);if(dd<(d.lungeT>0?(d===G.ctl?15:11):(d===G.ctl?8.5:6.5))){tryTackle(d,holder);if(G.state!=='live')return;}
-      else if(dd<15&&!(d.lungeT>0)&&d!==G.ctl&&!(d.tkCd>0)&&G.phase==='run'&&Math.random()<dt*1.6){const dx=holder.x+holder.vx*.15-d.x,dy=holder.y+holder.vy*.15-d.y,m=Math.hypot(dx,dy)||1;d.vx=dx/m*d.spd*1.7;d.vy=dy/m*d.spd*1.7;d.lungeT=.2;setAnim(d,'tackle',.5);d.face=d.vx>=0?1:-1;}}
+    for(const d of G.def){if(d.downT>0||d.shedT>0)continue;const dd=ed(d,holder);
+      if(G.side==='def'&&d!==G.ctl){if(dd<7.5){holder.slowT=.2;holder.heldT=(holder.heldT||0)+dt;if(!(holder.heldF>0)){holder.heldF=1;float('WRAPPED UP - FINISH HIM!',holder.x,holder.y-24,'#ffd23f');}if(holder.heldT>1.6){tryTackle(d,holder);if(G.state!=='live')return;}}continue;}
+      if(dd<(d.lungeT>0?(d===G.ctl?15:11):(d===G.ctl?8.5:6.5))){tryTackle(d,holder);if(G.state!=='live')return;}
+      else if(dd<15&&!(d.lungeT>0)&&d!==G.ctl&&G.side!=='def'&&!(d.tkCd>0)&&G.phase==='run'&&Math.random()<dt*1.6){const dx=holder.x+holder.vx*.15-d.x,dy=holder.y+holder.vy*.15-d.y,m=Math.hypot(dx,dy)||1;d.vx=dx/m*d.spd*1.7;d.vy=dy/m*d.spd*1.7;d.lungeT=.2;setAnim(d,'tackle',.5);d.face=d.vx>=0?1:-1;}}
   }
   /* aim release handled in input */
   const foc=G.ball.fly?G.ball:(G.carrier||qb);const tx=clamp(foc.x-(G.phase==='pocket'?170:190),0,WW-W);G.cam.x+=(tx-G.cam.x)*Math.min(1,5*dt);
@@ -744,8 +746,10 @@ function autoAnim(e){const sp=Math.hypot(e.vx,e.vy);if(sp>8){e.anim='run';if(Mat
 /* ---------- rendering ---------- */
 function drawPosts(px){const x=Math.round(px-camX);if(x<-20||x>W+20)return;g.fillStyle='#ffd23f';g.fillRect(x,MID-14,2,14);
   for(let i=-16;i<=16;i++)g.fillRect(Math.round(x-i*.35),MID-14+i,2,1);g.fillRect(Math.round(x+16*.35),MID-30-22,2,22);g.fillRect(Math.round(x-16*.35),MID+2-22,2,22);}
-function drawBall(b){if(!b.vis)return;const x=Math.round(b.x-camX),y=Math.round(b.y);g.fillStyle='rgba(0,0,0,.3)';g.fillRect(x-1,y,3,1);
-  const yy=y-Math.round(b.z||0);const spin=b.fly&&Math.floor(T*14)%2;g.fillStyle='#8a4b1f';if(spin){g.fillRect(x-1,yy-2,2,3);}else g.fillRect(x-1,yy-1,3,2);g.fillStyle='#fff';g.fillRect(x,yy-1,1,1);}
+function drawBall(b){if(!b.vis)return;const x=Math.round(b.x-camX),y=Math.round(b.y);g.fillStyle='rgba(0,0,0,.35)';g.fillRect(x-3,y,7,2);
+  const yy=y-Math.round(b.z||0),spin=b.fly&&Math.floor(T*12)%2;
+  if(b.fly){g.fillStyle='#ffd23f';g.fillRect(x-5,yy-4,11,1);g.fillRect(x-5,yy+3,11,1);g.fillRect(x-5,yy-4,1,8);g.fillRect(x+5,yy-4,1,8);}
+  g.fillStyle='#2b1608';g.fillRect(x-4,yy-3,9,6);g.fillStyle='#a85a22';if(spin){g.fillRect(x-2,yy-2,5,4);g.fillRect(x-3,yy-1,7,2);}else{g.fillRect(x-3,yy-2,7,4);}g.fillStyle='#fff';g.fillRect(x-1,yy-1,3,1);g.fillRect(x,yy-2,1,3);}
 function drawWorld(dt){
   const sh=G.cam.sh>0?Math.round(rnd(-2,2)):0;camX=Math.round(G.cam.x)+sh;
   g.drawImage(fieldCv,-camX,0);
