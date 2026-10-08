@@ -84,7 +84,7 @@ ul{margin:0;padding-left:20px}
       <p>You are the quarterback and the head coach. Call a play from a 39-play book built on real football concepts (you get four that fit the down, and can swap for four more), snap it, find the open receiver, then run after the catch. Your defense plays on its own, and how good it is depends on the roster you build.</p>
       <p><span class="gold">Throw:</span> press anywhere, drag back like a slingshot, and release. The ball goes the opposite way, and the further you pull, the further it flies. A dotted arc and a yard count show where it will land. You can also click or tap a receiver for a quick led pass. Keys <kbd>1</kbd>–<kbd>4</kbd> also throw to the numbered receiver. A green number is open, red is covered.</p>
       <p><span class="gold">Interceptions:</span> defenders can pick the ball off two ways. They can jump in front of a low throw while it is in the air, or beat your receiver to the spot where it lands. The yard count turns red and says DEFENDER when one is sitting where you are aiming. Throw over them with a longer pull, or pick someone else.</p>
-      <p><span class="gold">Run:</span> <kbd>WASD</kbd> or arrows (on a phone, drag the left side of the field). <kbd>Space</kbd> dives for extra yards, or slides when you scramble with the QB. <kbd>Shift</kbd> jukes a tackler. Turn on <span class="gold">Auto juke</span> under the field and your runner jukes on his own, but it only fools the tackler about 6 times in 10. A juke you time yourself always works. Hit a receiver <span class="gold">in stride</span>, while he is running upfield, and he gets a burst of speed after the catch. Right after any catch the nearest defenders are a step slow, and your receiver will usually shake the first tackler on his own.</p>
+      <p><span class="gold">Run:</span> <kbd>WASD</kbd> or arrows (on a phone, drag the left side of the field). <kbd>Space</kbd> dives for extra yards, or slides when you scramble with the QB. <kbd>Shift</kbd> jukes a tackler. Turn on <span class="gold">Auto juke</span> under the field and your runner jukes on his own, but it only fools the tackler about 6 times in 10. A juke you time yourself always works. Hit a receiver <span class="gold">in stride</span>, while he is running upfield, and he gets a burst of speed after the catch. Right after any catch the nearest defenders are a step slow, and your receiver will usually shake the first tackler on his own. Once the ball is caught the defense speeds up a little to chase.</p>
       <p><span class="gold">Career:</span> 11 games, a four-team playoff, and the Pixel Bowl. Every player has a level from 1 to 100 built from ratings like speed, diving and dodging, and earns XP to raise them, you earn money to buy better players and a bigger fan base, and you draft rookies every offseason.</p>
     </div>
   </section>
@@ -315,6 +315,11 @@ const ANIMS={
  block:{fps:5,n:2,f:i=>({b:1,a1:'fwd',a2:'fwd',l1:2-i,l2:-2+i})},
  juke:{fps:10,n:2,f:i=>({b:2,l1:3,l2:-3,a1:'tuck',a2:'back',ball:1,sx:i?1:-1})},
  celebrate:{fps:6,n:2,f:i=>({b:i?-3:0,a1:'up',a2:i?'up':'down',l1:i?2:0,l2:i?-2:0})},
+ dance:{fps:6,n:4,f:i=>({sx:[-2,0,2,0][i],b:i%2?1:-1,a1:i<2?'up':'fwd',a2:i<2?'fwd':'up',l1:i%2?2:0,l2:i%2?-2:0,u1:i===0?2:0,u2:i===2?2:0})},
+ spike:{fps:5,n:5,loop:0,f:i=>[{a1:'cock',a2:'down',ball:2,l1:-1,l2:1},{a1:'up',a2:'down',ball:2,b:-2},{a1:'fwd',a2:'back',b:3,l1:2,l2:-2},{a1:'up',a2:'up',b:-3},{a1:'up',a2:'up',b:0,l1:2,l2:-2}][i]},
+ flip:{fps:9,n:7,loop:0,f:i=>[{b:3,a1:'back',a2:'back'},{b:-5,a1:'up',a2:'up'},{lie:1,h:11},{lie:-1,h:13},{lie:1,h:9},{b:2,l1:2,l2:-2,a1:'fwd',a2:'fwd'},{b:-2,a1:'up',a2:'up'}][i]},
+ flex:{fps:4,n:2,f:i=>({b:i?0:1,sx:i?1:-1,a1:'cock',a2:i?'up':'cock',l1:3,l2:-3})},
+ point:{fps:3,n:2,f:i=>({b:i,a1:'fwd',a2:'down',l1:1,l2:-1})},
  kick:{fps:9,n:3,loop:0,f:i=>[{l1:-3,u1:1,a1:'back',a2:'fwd'},{l1:3,u1:2,a1:'fwd',a2:'back'},{l1:4,u1:4,a1:'fwd',a2:'back',b:-1}][i]},
  sad:{fps:1,n:1,f:()=>({b:2,a1:'down',a2:'down'})},
  dive:{fps:8,n:2,loop:0,f:i=>({lie:1,h:i?1:4,reach:1,ball:1})},
@@ -513,9 +518,10 @@ function endPlay(kind){
     else if(kind==='sack'){G.tm.sacked++;s=`${qn} sacked for a loss of ${-gain}.`;}
     else{st(c.p,'ra');st(c.p,'ry',gain);if(kind==='td')st(c.p,'rtd');s=`${who} ${c===G.qb?'scrambles':'runs'} for ${gain} yard${gain===1?'':'s'}.`;}
     G.tm.yds+=gain;
-    if(kind==='td'){s+=' TOUCHDOWN!';banner('TOUCHDOWN!',G.me.name,'#ffd23f',2.4);G.hype=3;SFX.td();setAnim(c,'celebrate',4);puff(c.x,c.y-10,60,[G.me.c1,G.me.c2,'#ffd23f','#fff'],2);G.off.forEach(e=>{if(e!==c&&e.downT<=0)setAnim(e,'celebrate',4);});}
+    if(kind==='td'){s+=' TOUCHDOWN!';banner('TOUCHDOWN!',G.me.name,'#ffd23f',2.4);G.hype=3;SFX.td();{const cel=pick([['celebrate','TOUCHDOWN DANCE'],['dance','SHUFFLE!'],['spike','SPIKE!'],['flip','BACKFLIP!'],['flex','FLEX!']]);setAnim(c,cel[0],4);c.vx=c.vy=0;float(cel[1],c.x,c.y-30,'#ffd23f');if(cel[0]==='spike')setTimeout(()=>{if(G&&G.state==='dead'){c.hasBall=false;puff(c.x+6*(c.face||1),c.y,14,['#8a4b1f','#fff','#3fbf5e']);SFX.hit();}},450);}
+      puff(c.x,c.y-10,60,[G.me.c1,G.me.c2,'#ffd23f','#fff'],2);G.off.forEach(e=>{if(e!==c&&e.downT<=0)setAnim(e,pick(['celebrate','dance','flex']),4);});G.def.forEach(d=>{if(d.downT<=0&&d.lockT<=0)setAnim(d,'sad',4);});}
     else if(kind==='safety'){s+=' SAFETY.';banner('SAFETY','','#ff6257');SFX.bad();}
-    else{if(kind==='oob')s+=' Out of bounds.';if(nyl>=G.yl+G.toGo){res.first=true;s+=' FIRST DOWN!';banner('FIRST DOWN','','#5bdb85',1.1);SFX.good();}else SFX.wh();
+    else{if(kind==='oob')s+=' Out of bounds.';if(nyl>=G.yl+G.toGo){res.first=true;s+=' FIRST DOWN!';if(gain>=15&&kind!=='oob'){}banner('FIRST DOWN','','#5bdb85',1.1);SFX.good();}else SFX.wh();
       res.run=kind!=='oob';G.by=clamp(c.y,MID-32,MID+32);}
   }
   if(kind==='tackle'&&gain>=20)G.hype=1.5;
@@ -642,7 +648,7 @@ function updateLive(dt){
       if(car&&ed(d,car)<13&&Math.random()<dt*2)d.shedT=0;
       if(P.type==='run')steer(d,14,0,dt);else if(chase){const dx=chase.x-d.x,dy=chase.y-d.y,m=Math.hypot(dx,dy)||1;steer(d,dx/m*10,dy/m*10,dt);}
       if(d.lockT<=0){d.anim='block';d.face=-1;}return;}
-    let s=d.spd*(d.slowT>0?.5:1);
+    let s=d.spd*(d.slowT>0?.5:1)*(G.caught?1.07:1);
     if(G.phase==='air'){const b=G.ball,el=G.pt-b.t0;
       if((d===G.tgtDef||d.role==='S'&&d.brk)&&el>(d.rAir||.2))seek(d,b.tx,b.ty,s,dt);
       else if(d.man&&d!==G.tgtDef)seek(d,d.man.x+d.cush,d.man.y,s,dt);else seek(d,b.tx+12,b.ty,s*.8,dt);}
