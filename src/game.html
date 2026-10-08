@@ -26,6 +26,8 @@ button .badge{display:inline-block;min-width:18px;padding:3px 5px;margin-left:6p
 button small{display:block;font-family:var(--body);font-size:16px;color:var(--gold);text-transform:none;margin-top:4px}
 button:disabled{opacity:.4;cursor:not-allowed}
 input{font-family:var(--body);font-size:21px;background:var(--panel2);color:var(--ink);border:2px solid var(--line);padding:4px 8px;width:11em;max-width:100%}
+textarea{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;background:var(--panel2);color:var(--ink);border:2px solid var(--line);padding:6px;width:100%;resize:vertical;word-break:break-all}
+textarea:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 select{font-family:var(--body);font-size:21px;background:var(--panel2);color:var(--ink);border:2px solid var(--line);padding:4px 8px}
 h2{font-family:var(--display);font-size:13px;color:var(--gold);margin:0 0 10px;text-wrap:balance;line-height:1.5}
@@ -84,6 +86,8 @@ ul{margin:0;padding-left:20px}
     </div>
     <div class="panel col" id="savesBox" hidden><h2>Saved careers on this device</h2><div class="col" id="saves"></div>
     </div>
+    <div class="panel col"><h2>Lost your save?</h2><p class="dim">Saves live in this browser. A private window, or a school or work device that clears data when the browser closes, will wipe them. Make a backup code in Front office, then paste it here to get your career back.</p><textarea id="loadTxt" rows="2" placeholder="Paste a backup code here" aria-label="Paste a backup code"></textarea><div class="row"><button id="btnLoadCode" class="sm">Load a backup code</button><span id="loadMsg" class="bad"></span></div>
+    </div>
     <div class="panel col">
       <h2>How it plays</h2>
       <p>You are the quarterback and the head coach. Call a play from a 39-play book built on real football concepts (you get four that fit the down, and can swap for four more), snap it, find the open receiver, then run after the catch. On Easy and Normal your defense plays on its own, and how good it is depends on your roster. On Hard and Legend you play defense too: you control one defender at a time, chase the ball, and dive to make the tackle.</p>
@@ -122,7 +126,7 @@ ul{margin:0;padding-left:20px}
     </div>
     <div id="pad">
       <div class="acts"><button id="btnJuke">Juke<small>key: Shift</small></button><button id="btnAuto" class="sm">Auto juke: off</button><button id="btnDive">Dive / Slide<small>key: F</small></button></div>
-      <button id="btnCel" class="sm">Celly<small>key: G</small></button><button id="btnQuit" class="sm">Leave game</button>
+      <button id="btnCel" class="sm">Celly<small>key: G</small></button><button id="btnQuit" class="sm">Save and leave</button>
     </div>
     <p class="hint">Tap a receiver or drag back to throw. <kbd>WASD</kbd> move · any key snaps · <kbd>F</kbd> dive or slide · <kbd>Shift</kbd> juke · <kbd>G</kbd> celly (celebrate after a big play) · <kbd>1</kbd>–<kbd>4</kbd> quick throw</p>
   </section>
@@ -455,7 +459,8 @@ function setFormation(play){
 function say(s){$('#ticker').textContent=s;}
 function banner(t,sub,col,dur=1.7){G.banner={t,sub:sub||'',col:col||'#ffd23f',life:dur,max:dur};}
 function startDrive(yl){G.poss='me';G.yl=clamp(Math.round(yl),1,99);G.down=1;G.toGo=Math.min(10,100-G.yl);G.by=MID;toPlaycall();}
-function toPlaycall(){G.state='playcall';G.play=null;dealPlays();setFormation(PLAYS[0]);G.cam.x=clamp(G.L-170,0,WW-W);updSB();}
+function keep(){if(!C||!G||G.demo||G.two)return;C.live={opp:G.oppI,po:G.playoff,label:G.label,weather:G.weather,my:G.myScore,os:G.oppScore,q:G.q,clock:G.clock,yl:G.yl,down:G.down,toGo:G.toGo,ot:G.ot,side:G.side,by:G.by,gs:G.gs,tm:G.tm};save();}
+function toPlaycall(){G.state='playcall';G.play=null;keep();dealPlays();setFormation(PLAYS[0]);G.cam.x=clamp(G.L-170,0,WW-W);updSB();}
 function fgDist(){return 100-G.yl+17;}
 function fgMax(){return 34+G.r.K.g.PWR*2.6;}
 function choosePlay(i){const P=PLAYS[G.hand[i]];if(!P)return;if(P.punt)return doPunt();G.play=P;setFormation(G.play);G.state='presnap';SFX.ui();}
@@ -582,7 +587,7 @@ function defNext(){
     if(dist<=52){const good=Math.random()<clamp(.97-(dist-20)*.013,.45,.97);if(good)G.oppScore+=3;banner(good?'FIELD GOAL':'NO GOOD',dist+' YARDS',good?'#ff6257':'#5bdb85',1.2);say(good?`The ${G.opp.name} kick a ${dist}-yard field goal.`:`They miss the ${dist}-yard field goal!`);if(good)SFX.bad();else SFX.good();updSB();const nx=good?ri(18,34):clamp(100-G.yl,1,99);G.state='dead';G.deadT=G.deadMax=1.2;G.after=()=>endDef(nx,good);return;}
     const net=ri(34,50),spot=G.yl+net,nx=spot>=100?20:100-spot;banner('THEY PUNT','GOOD STOP','#5bdb85',1.1);G.def.forEach(d=>setAnim(d,pick(['celebrate','flex','dance']),3));say(`Defense holds. The ${G.opp.name} punt.`);SFX.good();G.state='dead';G.deadT=G.deadMax=1.1;G.after=()=>endDef(nx,false);return;}
   const x=Math.random(),tag=G.toGo<=2?(x<.65?'run':'short'):x<.38?'run':x<.64?'short':x<.87?'mid':'deep';
-  G.play=pick(PLAYS.filter(p=>p.tag===tag&&!p.sneak));setFormation(G.play);G.ctl=G.def.find(d=>d.role==='S'&&d.i===0);G.state='presnap';G.autoSnap=1.5;G.cam.x=clamp(G.L-170,0,WW-W);updSB();}
+  keep();G.play=pick(PLAYS.filter(p=>p.tag===tag&&!p.sneak));setFormation(G.play);G.ctl=G.def.find(d=>d.role==='S'&&d.i===0);G.state='presnap';G.autoSnap=1.5;G.cam.x=clamp(G.L-170,0,WW-W);updSB();}
 function endPlayDef(kind,nyl,gain,c){
   const o=G.opp.name,res={kind,gain,nyl,first:false,run:false};let s='';
   if(kind==='inc'){s='Incomplete. Good coverage.';SFX.wh();}
@@ -935,8 +940,10 @@ let demoField=null,demoCrowd=null;
 function teamBtn(t,i){return `<button data-team="${i}"><span class="sw"><i style="background:${t.c2}"></i><i style="background:${t.c1}"></i><i style="background:${t.c3}"></i></span><span>${esc(t.city)}</span><span class="gold">${esc(t.name)}</span></button>`;}
 $('#teamGrid').innerHTML=TEAMS.map(teamBtn).join('');
 $('#teamGrid').addEventListener('click',ev=>{const b=ev.target.closest('[data-team]');if(!b)return;SFX.ui();let nm=($('#coach').value||'').trim().replace(/[^\w \-]/g,'').slice(0,14)||'Coach';if(profiles().includes(nm)&&load(nm)){let i=2;while(profiles().includes(nm+' '+i))i++;nm=nm+' '+i;}newCareer(+b.dataset.team,+$('#diff').value,nm);hubTab='home';renderHub();show('hub');});
+$('#btnLoadCode').addEventListener('click',()=>{const m=$('#loadMsg');try{const o=JSON.parse(decodeURIComponent(escape(atob($('#loadTxt').value.trim()))));if(!o||!Array.isArray(o.roster)||o.team==null||!o.teams)throw 0;let nm=String(o.name||'Coach').replace(/[^\w \-]/g,'').slice(0,14)||'Coach';if(load(nm)){let i=2;while(load(nm+' '+i))i++;nm=nm+' '+i;}o.name=nm;C=o;save();C=null;$('#loadTxt').value='';m.className='good';m.textContent='Loaded as '+nm+'.';renderSaves();}catch(e){m.className='bad';m.textContent='That code did not work. Paste the whole thing.';}});
 $('#btnNew').addEventListener('click',()=>{SFX.ui();show('pick');});
 $('#btnBackTitle').addEventListener('click',()=>show('title'));
+let storeOK=true;try{localStorage.setItem('fal_probe','1');storeOK=localStorage.getItem('fal_probe')==='1';localStorage.removeItem('fal_probe');}catch(e){storeOK=false;}
 function renderSaves(){const a=profiles().map(n=>[n,load(n)]).filter(x=>x[1]);$('#savesBox').hidden=!a.length;
   $('#saves').innerHTML=a.map(([n,c])=>{const t=c.teams[c.team];return `<div class="row"><button class="go" data-load="${esc(n)}">Continue: ${esc(n)}</button><span>${esc(TEAMS[c.team].city)} ${esc(TEAMS[c.team].name)} · season ${c.season} · ${t.w}-${t.l}${t.t?'-'+t.t:''} · ${c.titles} title${c.titles===1?'':'s'}</span></div>`;}).join('');}
 $('#saves').addEventListener('click',ev=>{const b=ev.target.closest('[data-load]');if(!b)return;SFX.ui();C=load(b.dataset.load);if(!C)return renderSaves();hubTab='home';if(C.phase==='offseason'){renderOff();show('off');}else{renderHub();show('hub');}});
@@ -951,14 +958,15 @@ function statLine(p){const s=p.st||{};if(p.pos==='QB')return `${s.pc||0}/${s.pa|
 function renderHub(){
   const me=TEAMS[C.team],t=C.teams[C.team],f=fixture();const sp=C.roster.reduce((s,p)=>s+p.sp,0);const nR=sp+Math.floor(C.credits/2),nO=Math.max(0,canBuy().length-(C.credits>=2?1:0));
   let h=`<div class="panel col"><div class="row" style="justify-content:space-between">
-    <div><h2>${esc(me.city)} ${esc(me.name)} · COACH ${esc((C.name||'').toUpperCase())}</h2><p class="dim">Progress saves automatically under your name after every game and every purchase. A red number on a tab means there is something you can buy or upgrade there.</p><p>Season ${C.season} · <span class="gold">${recStr(t)}</span> · <span class="good">${cash(C.credits)}</span> · ${C.titles} Pixel Bowl title${C.titles===1?'':'s'}</p></div>
+    <div><h2>${esc(me.city)} ${esc(me.name)} · COACH ${esc((C.name||'').toUpperCase())}</h2><p class="dim">${storeOK?'Progress saves automatically under your name after every play, every game and every purchase.':'<span class="bad">This browser is blocking saves, so your career will be lost when you close the tab. Make a backup code in Front office.</span>'} A red number on a tab means there is something you can buy or upgrade there.</p><p>Season ${C.season} · <span class="gold">${recStr(t)}</span> · <span class="good">${cash(C.credits)}</span> · ${C.titles} Pixel Bowl title${C.titles===1?'':'s'}</p></div>
     <div class="row"><span class="chip">TEAM ${stars((offRating()+defRating())/2)}</span><span class="chip">OFF ${offRating()}</span><span class="chip">DEF ${defRating()}</span></div></div>
     <div class="tabs" role="tablist">${[['home','Locker room',0],['roster','Roster',nR],['table','Standings',0],['sched','Schedule',0],['office','Front office',nO]].map(([k,l,n])=>`<button role="tab" aria-selected="${hubTab===k}" data-tab="${k}" class="sm">${l}${n?` <span class="badge" title="${k==='roster'?'Upgrades you can make here':'Things you can afford here'}">${n}</span>`:''}</button>`).join('')}</div></div>`;
   if(hubTab==='home'){
     if(f){const o=TEAMS[f.opp],ot=C.teams[f.opp];h+=`<div class="panel col"><h3>${esc(f.label.toUpperCase())}${f.po?' · WIN OR GO HOME':''}</h3>
       <div class="vs"><span class="big" style="color:${me.c1}">${me.ab}</span><span class="dim">vs</span><span class="big" style="color:${o.c1}">${o.ab}</span></div>
       <p>${esc(o.city)} ${esc(o.name)} (${recStr(ot)}) · offense ${ot.off} · defense ${ot.def}</p>
-      <div><button class="go" data-act="play">Play game</button></div></div>`;}
+      ${C.live&&C.live.opp===f.opp?`<p class="gold">Game in progress: ${C.live.ot?'overtime':'quarter '+C.live.q}, ${me.ab} ${C.live.my} - ${C.live.os} ${o.ab}. It was saved after the last play.</p>`:''}
+      <div><button class="go" data-act="play">${C.live&&C.live.opp===f.opp?'Resume game':'Play game'}</button></div></div>`;}
     if(C.po&&C.po.log.length)h+=`<div class="panel"><h3>PLAYOFFS</h3><ul>${C.po.log.map(l=>`<li>${esc(l)}</li>`).join('')}</ul></div>`;
     h+=shopNote(true);
     if(sp)h+=`<div class="panel"><p class="gold">You have ${sp} skill point${sp===1?'':'s'} to spend. Open Roster to upgrade your players.</p></div>`;
@@ -984,6 +992,7 @@ function renderHub(){
     </table></div></div>
     <div class="panel col"><h3>CAREER</h3>${C.hist.length?`<ul>${C.hist.map(x=>`<li>Season ${x.season}: ${x.w}-${x.l}${x.t?'-'+x.t:''}. Champion: ${esc(x.champ)}${x.won?' (you!)':''}</li>`).join('')}</ul>`:'<p class="dim">No finished seasons yet.</p>'}
       <div class="row"><label for="diffSel">Difficulty</label><select id="diffSel">${['Easy','Normal','Hard','Legend (hardest)'].map((n,i)=>`<option value="${i}" ${C.diff===i?'selected':''}>${n}</option>`).join('')}</select></div>
+      <div class="row"><button class="sm" data-act="backup">Make a backup code</button></div><div id="backupBox" class="col" hidden><p class="dim">Copy all of this text and keep it somewhere safe (notes, an email to yourself). If this browser ever loses your save, paste it into Load a backup code on the title screen.</p><textarea id="backupTxt" rows="4" readonly aria-label="Backup code"></textarea><div><button class="sm" data-act="copybackup">Copy</button> <span id="copyMsg" class="good"></span></div></div>
       <div class="row"><button class="sm" data-act="title">Back to title</button><button class="sm" data-act="wipe">Delete this career</button></div><p id="wipeMsg" class="bad" hidden>Press delete again to erase the save.</p></div>`;}
   $('#hub').innerHTML=h;save();
 }
@@ -1005,6 +1014,8 @@ $('#hub').addEventListener('click',ev=>{const b=ev.target.closest('button');if(!
   if(b.dataset.goto){hubTab=b.dataset.goto;return renderHub();}
   if(b.dataset.tab){hubTab=b.dataset.tab;wipeArm=false;return renderHub();}
   if(b.dataset.act==='play')return playNext();
+  if(b.dataset.act==='backup'){save();const t=$('#backupTxt');t.value=btoa(unescape(encodeURIComponent(JSON.stringify(C))));$('#backupBox').hidden=false;t.focus();t.select();return;}
+  if(b.dataset.act==='copybackup'){const t=$('#backupTxt');t.focus();t.select();try{navigator.clipboard.writeText(t.value).then(()=>{$('#copyMsg').textContent='Copied.';},()=>{$('#copyMsg').textContent='Select the text and copy it by hand.';});}catch(e){$('#copyMsg').textContent='Select the text and copy it by hand.';}return;}
   if(b.dataset.act==='title'){return show('title');}
   if(b.dataset.act==='wipe'){if(!wipeArm){wipeArm=true;$('#wipeMsg').hidden=false;return;}wipe(C.name);C=null;wipeArm=false;return show('title');}
   if(b.dataset.up){const [id,k]=b.dataset.up.split(':'),p=C.roster.find(x=>x.id===id);if(p&&p.sp>0&&p.a[k]<p.pot){p.a[k]=Math.min(p.pot,p.a[k]+3);p.sp--;}return renderHub();}
@@ -1016,12 +1027,22 @@ $('#hub').addEventListener('click',ev=>{const b=ev.target.closest('button');if(!
   if(b.dataset.fac){const k=b.dataset.fac,l=C.fac[k]||0,c=[6,10,16][l];if(l<3&&C.credits>=c){C.credits-=c;C.fac[k]=l+1;if(k==='scout')refreshFA();}return renderHub();}
   if(b.dataset.sign){const p=C.fa[+b.dataset.sign];if(p&&C.credits>=faCost(p)){const out=replaceTarget(p.pos);C.credits-=faCost(p);C.roster[C.roster.indexOf(out)]=p;C.fa.splice(+b.dataset.sign,1);}return renderHub();}
 });
+function gameRoster(){return {QB:slot('QB'),RB:slot('RB'),WR1:slot('WR',0),WR2:slot('WR',1),TE:slot('TE'),OL:slot('OL'),K:slot('K'),DL:slot('DL'),LB:slot('LB'),CB:slot('CB'),S:slot('S')};}
 function playNext(){const f=fixture();if(!f)return;
-  const r={QB:slot('QB'),RB:slot('RB'),WR1:slot('WR',0),WR2:slot('WR',1),TE:slot('TE'),OL:slot('OL'),K:slot('K'),DL:slot('DL'),LB:slot('LB'),CB:slot('CB'),S:slot('S')};
-  newGame({me:C.team,opp:f.opp,oppR:C.teams[f.opp],r,myDef:defRating(),diff:C.diff,live:(1+.012*fans())*(C.boost?1.03:1),oc:C.fac.off||0,empty:.5-.09*fans(),po:f.po,label:f.label});
+  if(C.live&&C.live.opp===f.opp&&!!C.live.po===!!f.po)return resumeGame(f);
+  C.live=null;
+  newGame({me:C.team,opp:f.opp,oppR:C.teams[f.opp],r:gameRoster(),myDef:defRating(),diff:C.diff,live:(1+.012*fans())*(C.boost?1.03:1),oc:C.fac.off||0,empty:.5-.09*fans(),po:f.po,label:f.label});
   C.boost=false;save();show('game');setPad();say(`${f.label}: ${TEAMS[C.team].name} vs ${TEAMS[f.opp].name}. You get the ball first.`);startDrive(ri(20,32));}
+function resumeGame(f){const L=C.live;
+  newGame({me:C.team,opp:L.opp,oppR:C.teams[L.opp],r:gameRoster(),myDef:defRating(),diff:C.diff,live:1+.012*fans(),oc:C.fac.off||0,empty:.5-.09*fans(),po:L.po,label:L.label||f.label,weather:L.weather});
+  Object.assign(G,{myScore:L.my,oppScore:L.os,q:L.q,clock:L.clock,ot:!!L.ot,gs:L.gs||{},tm:L.tm||G.tm});
+  show('game');setPad();
+  if(L.side==='def'&&G.playDef){startDefDrive(L.yl);G.down=L.down;G.toGo=L.toGo;defNext();}
+  else{G.poss='me';G.yl=L.yl;G.down=L.down;G.toGo=L.toGo;G.by=L.by||MID;toPlaycall();}
+  say('Game resumed from where you left it.');banner('RESUMED',G.me.ab+' '+G.myScore+' - '+G.oppScore+' '+G.opp.ab,'#ffd23f',1.4);}
 function showPost(){
   const ms=G.myScore,os=G.oppScore,won=ms>os,tie=ms===os,R=G.r,gs=G.gs;const S=p=>gs[p.id]||{};
+  C.live=null;
   const cr=applyResult(ms,os,G.oppI,G.playoff),xp=awardXP(gs,G.tm,won);save();
   const q=S(R.QB),top=[R.WR1,R.WR2,R.TE,R.RB].sort((a,b)=>(S(b).recy||0)-(S(a).recy||0))[0],rb=S(R.RB),k=S(R.K);
   const champ=C.phase==='offseason'&&C.po&&C.po.champ===C.team;
