@@ -30,9 +30,9 @@ To put it online, turn on GitHub Pages for this repo (Settings → Pages → dep
 
 ## What is in it
 
-- A 16-play book (passes, runs, a QB draw, a punt and a fake punt); you are dealt four that fit the down, with route diagrams and a plain-language note on what each one does
+- A 19-play book (passes, six runs including a QB draw, a punt and a fake punt); you are dealt four that fit the down, with route diagrams and a plain-language note on what each one does
 - Interceptions: defenders jump low throws in the air or beat the receiver to the landing spot
-- Auto juke toggle, four difficulty levels, and money to buy better players and a bigger fan base
+- Auto juke toggle, four difficulty levels, and money to spend on players, fans, coaches, scouts, training camps and skill points
 - Slingshot passing: drag back to aim, pull further to throw further, with a live arc and yard count
 - Player levels from 1 to 100, built from ratings that change how the game plays: arm strength, accuracy, speed, strength, catching, diving, dodging, blocking
 - An animation bank of 20 poses, drawn in code: run, backpedal, dropback, throw, catch, block, juke, dive, slide, tackle, fall, celebrate, kick and more
