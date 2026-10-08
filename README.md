@@ -24,7 +24,7 @@ To put it online, turn on GitHub Pages for this repo (Settings → Pages → dep
 | Throw a led pass | Click a receiver, or `1`–`4` | Tap a receiver |
 | Aim a throw yourself | Drag back and release | Drag back and release |
 | Move | `WASD` / arrows | Drag the left side of the field |
-| Dive, or slide with the QB | `Space` | Dive / Slide button |
+| Dive, or slide with the QB; dive tackle on defense | `F` or `Space` | Dive / Slide button |
 | Juke | `Shift` | Juke button |
 | Punt / field goal | `P` / `F` on the play screen | Tap the button |
 
