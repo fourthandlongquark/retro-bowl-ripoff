@@ -20,7 +20,7 @@ To put it online, turn on GitHub Pages for this repo (Settings → Pages → dep
 | Action | Keyboard / mouse | Touch |
 | --- | --- | --- |
 | Pick a play (`M` deals other plays) | `1`–`4`, or click a card | Tap a card |
-| Snap | `Space` | Tap the field |
+| Snap | Any key (`Esc` changes the play) | Tap the field |
 | Throw a led pass | Click a receiver, or `1`–`4` | Tap a receiver |
 | Aim a throw yourself | Drag back and release | Drag back and release |
 | Move | `WASD` / arrows | Drag the left side of the field |

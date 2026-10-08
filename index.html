@@ -130,7 +130,7 @@ ul{margin:0;padding-left:20px}
       <div class="acts"><button id="btnJuke">Juke<small>key: Shift</small></button><button id="btnAuto" class="sm">Auto juke: off</button><button id="btnDive">Dive / Slide<small>key: F</small></button></div>
       <button id="btnCel" class="sm">Celly<small>key: G</small></button><button id="btnQuit" class="sm">Leave game</button>
     </div>
-    <p class="hint">Tap a receiver or drag back to throw. <kbd>WASD</kbd> move · <kbd>Space</kbd> snap · <kbd>F</kbd> dive or slide · <kbd>Shift</kbd> juke · <kbd>G</kbd> celly (celebrate after a big play) · <kbd>1</kbd>–<kbd>4</kbd> quick throw</p>
+    <p class="hint">Tap a receiver or drag back to throw. <kbd>WASD</kbd> move · any key snaps · <kbd>F</kbd> dive or slide · <kbd>Shift</kbd> juke · <kbd>G</kbd> celly (celebrate after a big play) · <kbd>1</kbd>–<kbd>4</kbd> quick throw</p>
   </section>
 
   <section id="post" class="col" hidden></section>
@@ -856,7 +856,7 @@ function frame(dt){
   drawWorld(dt);
   if(G.state==='playcall')drawPlaycall();
   else if(G.state==='presnap'&&G.side==='def'){G.autoSnap-=dt;ctxt('YOU ARE ON DEFENSE',W/2,8,'#5fb7e8',2,'#05070f');g.fillStyle='rgba(5,7,15,.75)';g.fillRect(W/2-120,H-16,240,12);ctxt('MOVE: WASD   DIVE TACKLE: F   SWITCH: SHIFT',W/2,H-13,'#fff',1);if(G.autoSnap<=0)snap();}
-  else if(G.state==='presnap'){if(Math.floor(T*2.5)%2)ctxt('TAP OR SPACE TO SNAP',W/2,H-14,'#fff',2,'#05070f');g.fillStyle='rgba(5,7,15,.8)';g.fillRect(4,4,74,13);txt('< CHANGE PLAY',8,8,'#ffd23f');ctxt(G.play.name,W/2,8,'#ffd23f',2,'#05070f');
+  else if(G.state==='presnap'){if(Math.floor(T*2.5)%2)ctxt('TAP OR PRESS ANY KEY TO SNAP',W/2,H-14,'#fff',2,'#05070f');g.fillStyle='rgba(5,7,15,.8)';g.fillRect(4,4,82,13);txt('< CHANGE PLAY - ESC',8,8,'#ffd23f');ctxt(G.play.name,W/2,8,'#ffd23f',2,'#05070f');
     if(G.play.type==='pass'){const x=W-132,y=22;g.fillStyle='rgba(5,7,15,.85)';g.fillRect(x,y,128,50);g.fillStyle='#ffd23f';g.fillRect(x,y,128,2);txt('HOW TO THROW',x+5,y+6,'#ffd23f');txt('1 DRAG BACK ANYWHERE ON SCREEN',x+5,y+15,'#eef1fb');txt('2 PULL FURTHER = THROW FURTHER',x+5,y+23,'#eef1fb');txt('3 RELEASE TO THROW',x+5,y+31,'#eef1fb');txt('OR TAP A RECEIVER / KEYS 1-4',x+5,y+41,'#97a5cc');}}
   else if(G.state==='dead'){G.deadT-=dt;if(G.deadT<=0){const f=G.after;G.after=null;if(f)f();}}
   else if(G.state==='opp')drawOpp(dt);
@@ -909,7 +909,7 @@ addEventListener('pointerup',pUp);addEventListener('pointercancel',ev=>{if(inp.j
 cv.addEventListener('contextmenu',e=>e.preventDefault());
 addEventListener('keydown',ev=>{if($('#game').hidden||!G)return;const c=ev.code;if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(c))ev.preventDefault();if(ev.repeat)return;inp.k[c]=true;ac();
   if(G.state==='playcall'){const n=parseInt(ev.key,10);if(n>=1&&n<=4)choosePlay(n-1);else if(c==='KeyM'){dealPlays();SFX.ui();}else if(c==='KeyP')tryPunt();else if(c==='KeyF')tryFG();}
-  else if(G.state==='presnap'){if(c==='Space'||c==='Enter')snap();else if((c==='Escape'||c==='KeyB')&&G.side!=='def')toPlaycall();}
+  else if(G.state==='presnap'){if(c==='Escape'){if(G.side!=='def')toPlaycall();}else if(!ev.ctrlKey&&!ev.metaKey&&!ev.altKey&&!/^(Tab|Meta|Control|Alt|CapsLock|F\d+)/.test(c)){snap();inp.dive=inp.juke=false;}}
   else if(G.state==='live'){if(c==='Space'||c==='KeyF')inp.dive=true;else if(c==='ShiftLeft'||c==='ShiftRight'||c==='KeyJ')inp.juke=true;else if(G.phase==='pocket'&&G.side!=='def'){const n=parseInt(ev.key,10);if(n>=1&&n<=4){const r=G.recs.find(r=>r.tag===n);if(r)leadThrow(r);}}}
   else if(G.state==='kick'){if(c==='Space'||c==='Enter')kickPress();}
   else if(G.state==='pat'){if(c==='Digit1'||c==='KeyK')patPick(false);else if(c==='Digit2')patPick(true);}
