@@ -81,10 +81,11 @@ ul{margin:0;padding-left:20px}
 
   <section id="title" class="col">
     <canvas id="tcv" width="480" height="270" aria-label="Game preview"></canvas>
+    <div class="panel col" id="savesBox" hidden><h2>Continue your career</h2><div class="col" id="saves"></div>
+    </div>
+    <p id="noSaves" class="dim" hidden></p>
     <div class="row">
       <button id="btnNew" class="go">New career</button>
-    </div>
-    <div class="panel col" id="savesBox" hidden><h2>Saved careers on this device</h2><div class="col" id="saves"></div>
     </div>
     <div class="panel col"><h2>Lost your save?</h2><p class="dim">Saves live in this browser. A private window, or a school or work device that clears data when the browser closes, will wipe them. Make a backup code in Front office, then paste it here to get your career back.</p><textarea id="loadTxt" rows="2" placeholder="Paste a backup code here" aria-label="Paste a backup code"></textarea><div class="row"><button id="btnLoadCode" class="sm">Load a backup code</button><span id="loadMsg" class="bad"></span></div>
     </div>
@@ -93,7 +94,7 @@ ul{margin:0;padding-left:20px}
       <p>You are the quarterback and the head coach. Call a play from a 39-play book built on real football concepts (you get four that fit the down, and can swap for four more), snap it, find the open receiver, then run after the catch. On Easy and Normal your defense plays on its own, and how good it is depends on your roster. On Hard and Legend you play defense too: you control one defender at a time, chase the ball, and dive to make the tackle.</p>
       <p><span class="gold">Throw:</span> press anywhere on the screen (it does not have to be on the field), drag back like a slingshot, and release. On a phone, a second finger moves the QB while you aim. The ball goes the opposite way, and the further you pull, the further it flies. A dotted arc and a yard count show where it will land. You can also click or tap a receiver for a quick led pass. Keys <kbd>1</kbd>–<kbd>4</kbd> also throw to the numbered receiver. A green number is open, red is covered.</p>
       <p><span class="gold">Interceptions:</span> defenders can pick the ball off two ways. They can jump in front of a low throw while it is in the air, or beat your receiver to the spot where it lands. The yard count turns red and says DEFENDER when one is sitting where you are aiming. Throw over them with a longer pull, or pick someone else.</p>
-      <p><span class="gold">Run:</span> <kbd>WASD</kbd> or arrows (on a phone, drag the left side of the field). <kbd>F</kbd> or <kbd>Space</kbd> dives for extra yards, or slides when you scramble with the QB. <kbd>Shift</kbd> jukes a tackler. Turn on <span class="gold">Auto juke</span> under the field and your runner jukes on his own, but it only fools the tackler about 6 times in 10, and after the first one or two in a play it almost always fails. A higher DOD rating gives him more good auto jukes per play (up to three). A juke you time yourself with Shift works more often, about 85 times in 100 for an average player and up to 95 with a high DOD rating, but it is not guaranteed either. Hit a receiver <span class="gold">in stride</span>, while he is running upfield, and he gets a burst of speed after the catch. Right after any catch the nearest defenders are a step slow, and your receiver will usually shake the first tackler on his own. Once the ball is caught the defense speeds up a little to chase.</p>
+      <p><span class="gold">Run:</span> <kbd>WASD</kbd> or arrows (on a phone, drag the left side of the field). <kbd>F</kbd> or <kbd>Space</kbd> dives for extra yards, or slides when you scramble with the QB. <kbd>Shift</kbd> jukes a tackler. Turn on <span class="gold">Auto juke</span> under the field and your runner jukes on his own, but it fools the tackler 40 to 65 times in 100 depending on his DOD rating, and after the first one or two in a play it almost always fails. A juke you time yourself with Shift is better: 50 to 75 times in 100, again by DOD rating, with no limit per play. Hit a receiver <span class="gold">in stride</span>, while he is running upfield, and he gets a burst of speed after the catch. Right after any catch the nearest defenders are a step slow, and your receiver will usually shake the first tackler on his own. Once the ball is caught the defense speeds up a little to chase.</p>
       <p><span class="gold">Defense (Hard and Legend only):</span> your player has a gold ring. <kbd>WASD</kbd> moves him, <kbd>F</kbd> or <kbd>Space</kbd> dives at the ball carrier, <kbd>Shift</kbd> (or a tap on the field) switches to the defender nearest the ball. Making the stop is mostly your job. Teammates cover, and sometimes make the tackle or knock a pass down themselves, but more often they only wrap the runner up and slow him until you get there to finish it.</p>
       <p><span class="gold">After a touchdown:</span> kick the extra point for 1, or go for 2 with a single play from the 2-yard line. The other team sometimes goes for 2 as well.</p>
       <p><span class="gold">Celebrate:</span> press <kbd>G</kbd> right after a touchdown, a first down, a big gain, a sack or an interception to show off. Press it again for a different move.</p>
@@ -246,9 +247,11 @@ const SFX={snap:()=>beep(200,.06),thr:()=>beep(540,.2,'triangle',.06,-280),cat:(
 const KEY='fourth_long_career_v2';
 let C=null,uidN=1;
 const PKEY='fourth_long_profiles_v1';
-const profiles=()=>{try{const a=JSON.parse(localStorage.getItem(PKEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return []}};
+const profiles=()=>{const out=[];try{const a=JSON.parse(localStorage.getItem(PKEY)||'[]');if(Array.isArray(a))a.forEach(n=>{if(!out.includes(n))out.push(n);});for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf(KEY+':')===0){const n=k.slice(KEY.length+1);if(!out.includes(n))out.push(n);}}}catch(e){}return out;};
+let saveState={ok:null,t:0,n:0};try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});}catch(e){}
 const setProfiles=a=>{try{localStorage.setItem(PKEY,JSON.stringify(a))}catch(e){}};
-const save=()=>{if(!C)return;try{localStorage.setItem(KEY+':'+C.name,JSON.stringify(C));const a=profiles();if(!a.includes(C.name)){a.push(C.name);setProfiles(a);}}catch(e){}};
+const save=()=>{if(!C)return;let ok=false;try{if(!C.name)C.name='Coach';C.savedAt=Date.now();const j=JSON.stringify(C);localStorage.setItem(KEY+':'+C.name,j);ok=localStorage.getItem(KEY+':'+C.name)===j;const a=profiles();setProfiles(a.includes(C.name)?a:a.concat(C.name));}catch(e){ok=false;}saveState={ok,t:Date.now(),n:saveState.n+1};const el=document.getElementById('saveDot');if(el)el.innerHTML=saveLine();};
+function saveLine(){if(saveState.ok===false)return '<span class="bad">NOT SAVED. This browser refused to store your career. Make a backup code in Front office before you close this tab.</span>';if(!saveState.t)return '';return '<span class="good">Saved '+new Date(saveState.t).toLocaleTimeString()+'</span>';}
 const load=n=>{try{const s=localStorage.getItem(KEY+':'+n);return s?JSON.parse(s):null}catch(e){return null}};
 const wipe=n=>{try{localStorage.removeItem(KEY+':'+n);}catch(e){}setProfiles(profiles().filter(x=>x!==n));};
 try{const old=localStorage.getItem(KEY);if(old){const o=JSON.parse(old);o.name=o.name||'Coach';localStorage.setItem(KEY+':'+o.name,JSON.stringify(o));const a=profiles();if(!a.includes(o.name)){a.push(o.name);setProfiles(a);}localStorage.removeItem(KEY);}}catch(e){}
@@ -519,10 +522,11 @@ function resolveBall(){
   float(oob?'OUT OF BOUNDS':'INCOMPLETE',clamp(lp.x,camX+30,camX+W-60),clamp(lp.y,FT+10,FB)-14,'#ff6257');endPlay('inc');
 }
 function intercept(d){G.ball.vis=false;d.hasBall=true;setAnim(d,pick(['celebrate','dance','flex']),3);G.def.forEach(x=>{if(x!==d&&x.downT<=0)setAnim(x,'celebrate',3);});G.intBy=d;endPlay('int');}
+const jk=c=>clamp(((c.p&&c.p.g.DOD||5)-1)/9,0,1)*.25;
 function tryTackle(d,c){
   if(c.diveT>0||d.tkCd>0)return;
   if(c.freeJ>0&&!(c.jukeT>0)&&Math.random()<.35-DK()){c.freeJ=0;c.jukeT=.25;c.autoJ=false;setAnim(c,'juke',.25);SFX.juke();}else if(c.freeJ>0)c.freeJ=0;
-  if(c.jukeT>0&&!(Math.random()<(c.autoJ?((c.ajN||0)>1+Math.floor((c.p.g.DOD||5)/3.5)?.85:.4):clamp(.25-(c.p.g.DOD||5)*.02,.05,.25)))){d.downT=1.1;d.tkCd=1.4;setAnim(d,'fall',1.1);float('JUKED!',d.x,d.y-20,'#ffd23f');return;}
+  if(c.jukeT>0&&!(Math.random()>(c.autoJ?((c.ajN||0)>1+Math.floor((c.p.g.DOD||5)/3.5)?.15:.4+jk(c)):.5+jk(c)))){d.downT=1.1;d.tkCd=1.4;setAnim(d,'fall',1.1);float('JUKED!',d.x,d.y-20,'#ffd23f');return;}
   if(G.phase==='run'&&(c.brk||0)<2&&Math.random()<clamp(((c.p&&c.p.g.STR||5)-3)*.045-DK()*.4,0,.32)){c.brk=(c.brk||0)+1;d.downT=.9;d.tkCd=1.3;setAnim(d,'fall',.9);c.slowT=.35;float('BROKEN TACKLE',c.x,c.y-22,'#ffd23f');SFX.hit();return;}
   G.lastTk=d;setAnim(d,'tackle',3);d.face=c.x>=d.x?1:-1;setAnim(c,'down',3);G.cam.sh=.25;SFX.hit();
   puff(c.x,c.y,10,G.weather==='snow'?['#fff','#dfe9ec']:['#3fbf5e','#1e7b3c','#6b4a2a']);
@@ -944,8 +948,11 @@ $('#btnLoadCode').addEventListener('click',()=>{const m=$('#loadMsg');try{const 
 $('#btnNew').addEventListener('click',()=>{SFX.ui();show('pick');});
 $('#btnBackTitle').addEventListener('click',()=>show('title'));
 let storeOK=true;try{localStorage.setItem('fal_probe','1');storeOK=localStorage.getItem('fal_probe')==='1';localStorage.removeItem('fal_probe');}catch(e){storeOK=false;}
-function renderSaves(){const a=profiles().map(n=>[n,load(n)]).filter(x=>x[1]);$('#savesBox').hidden=!a.length;
-  $('#saves').innerHTML=a.map(([n,c])=>{const t=c.teams[c.team];return `<div class="row"><button class="go" data-load="${esc(n)}">Continue: ${esc(n)}</button><span>${esc(TEAMS[c.team].city)} ${esc(TEAMS[c.team].name)} · season ${c.season} · ${t.w}-${t.l}${t.t?'-'+t.t:''} · ${c.titles} title${c.titles===1?'':'s'}</span></div>`;}).join('');}
+function renderSaves(){const a=profiles().map(n=>[n,load(n)]).filter(x=>x[1]).sort((x,y)=>(y[1].savedAt||0)-(x[1].savedAt||0));$('#savesBox').hidden=!a.length;
+  $('#btnNew').className=a.length?'':'go';$('#btnNew').textContent=a.length?'Start a different career':'New career';
+  const ns=$('#noSaves');ns.hidden=!!a.length;let fr=false;try{fr=window.self!==window.top;}catch(e){fr=true;}
+  ns.innerHTML=!storeOK?'<span class="bad">This browser is blocking saved data, so careers cannot be kept here. Try a normal (not private) window in Chrome, Safari or Edge.</span>':'No saved careers in this browser yet.'+(fr?' You are playing inside another app or page, where saves are less reliable. For saves that stick, open the game link in your normal browser.':' Saves stay with this browser on this device.');
+  $('#saves').innerHTML=a.map(([n,c])=>{const t=c.teams[c.team];return `<div class="row"><button class="go" data-load="${esc(n)}">Continue: ${esc(n)}</button><span>${esc(TEAMS[c.team].city)} ${esc(TEAMS[c.team].name)} · season ${c.season} · ${t.w}-${t.l}${t.t?'-'+t.t:''} · ${c.titles} title${c.titles===1?'':'s'} · ${cash(c.credits)}${c.savedAt?' · saved '+new Date(c.savedAt).toLocaleString():''}</span></div>`;}).join('');}
 $('#saves').addEventListener('click',ev=>{const b=ev.target.closest('[data-load]');if(!b)return;SFX.ui();C=load(b.dataset.load);if(!C)return renderSaves();hubTab='home';if(C.phase==='offseason'){renderOff();show('off');}else{renderHub();show('hub');}});
 $('#btnQuit').addEventListener('click',()=>{G=null;renderHub();show('hub');});
 let hubTab='home';
@@ -958,7 +965,7 @@ function statLine(p){const s=p.st||{};if(p.pos==='QB')return `${s.pc||0}/${s.pa|
 function renderHub(){
   const me=TEAMS[C.team],t=C.teams[C.team],f=fixture();const sp=C.roster.reduce((s,p)=>s+p.sp,0);const nR=sp+Math.floor(C.credits/2),nO=Math.max(0,canBuy().length-(C.credits>=2?1:0));
   let h=`<div class="panel col"><div class="row" style="justify-content:space-between">
-    <div><h2>${esc(me.city)} ${esc(me.name)} · COACH ${esc((C.name||'').toUpperCase())}</h2><p class="dim">${storeOK?'Progress saves automatically under your name after every play, every game and every purchase.':'<span class="bad">This browser is blocking saves, so your career will be lost when you close the tab. Make a backup code in Front office.</span>'} A red number on a tab means there is something you can buy or upgrade there.</p><p>Season ${C.season} · <span class="gold">${recStr(t)}</span> · <span class="good">${cash(C.credits)}</span> · ${C.titles} Pixel Bowl title${C.titles===1?'':'s'}</p></div>
+    <div><h2>${esc(me.city)} ${esc(me.name)} · COACH ${esc((C.name||'').toUpperCase())}</h2><p class="dim"><span id="saveDot"></span> ${storeOK?'Saves automatically under the name '+esc(C.name)+' after every play, game and purchase. To come back, open the same link in the same browser and press Continue: '+esc(C.name)+'.':'<span class="bad">This browser is blocking saves, so your career will be lost when you close the tab. Make a backup code in Front office.</span>'} A red number on a tab means there is something you can buy or upgrade there.</p><p>Season ${C.season} · <span class="gold">${recStr(t)}</span> · <span class="good">${cash(C.credits)}</span> · ${C.titles} Pixel Bowl title${C.titles===1?'':'s'}</p></div>
     <div class="row"><span class="chip">TEAM ${stars((offRating()+defRating())/2)}</span><span class="chip">OFF ${offRating()}</span><span class="chip">DEF ${defRating()}</span></div></div>
     <div class="tabs" role="tablist">${[['home','Locker room',0],['roster','Roster',nR],['table','Standings',0],['sched','Schedule',0],['office','Front office',nO]].map(([k,l,n])=>`<button role="tab" aria-selected="${hubTab===k}" data-tab="${k}" class="sm">${l}${n?` <span class="badge" title="${k==='roster'?'Upgrades you can make here':'Things you can afford here'}">${n}</span>`:''}</button>`).join('')}</div></div>`;
   if(hubTab==='home'){
