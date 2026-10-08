@@ -84,7 +84,7 @@ ul{margin:0;padding-left:20px}
       <p>You are the quarterback and the head coach. Call a play from a 19-play book (you get four that fit the down, and can swap for four more), snap it, find the open receiver, then run after the catch. Your defense plays on its own, and how good it is depends on the roster you build.</p>
       <p><span class="gold">Throw:</span> press anywhere, drag back like a slingshot, and release. The ball goes the opposite way, and the further you pull, the further it flies. A dotted arc and a yard count show where it will land. You can also click or tap a receiver for a quick led pass. Keys <kbd>1</kbd>–<kbd>4</kbd> also throw to the numbered receiver. A green number is open, red is covered.</p>
       <p><span class="gold">Interceptions:</span> defenders can pick the ball off two ways. They can jump in front of a low throw while it is in the air, or beat your receiver to the spot where it lands. The yard count turns red and says DEFENDER when one is sitting where you are aiming. Throw over them with a longer pull, or pick someone else.</p>
-      <p><span class="gold">Run:</span> <kbd>WASD</kbd> or arrows (on a phone, drag the left side of the field). <kbd>Space</kbd> dives for extra yards, or slides when you scramble with the QB. <kbd>Shift</kbd> jukes a tackler. Turn on <span class="gold">Auto juke</span> under the field and your runner jukes on his own, but it only fools the tackler about 6 times in 10. A juke you time yourself always works. Hit a receiver <span class="gold">in stride</span>, while he is running upfield, and he gets a burst of speed after the catch. A receiver who catches it standing still starts slow.</p>
+      <p><span class="gold">Run:</span> <kbd>WASD</kbd> or arrows (on a phone, drag the left side of the field). <kbd>Space</kbd> dives for extra yards, or slides when you scramble with the QB. <kbd>Shift</kbd> jukes a tackler. Turn on <span class="gold">Auto juke</span> under the field and your runner jukes on his own, but it only fools the tackler about 6 times in 10. A juke you time yourself always works. Hit a receiver <span class="gold">in stride</span>, while he is running upfield, and he gets a burst of speed after the catch. Right after any catch the nearest defenders are a step slow, and your receiver will usually shake the first tackler on his own.</p>
       <p><span class="gold">Career:</span> 11 games, a four-team playoff, and the Pixel Bowl. Every player has a level from 1 to 100 built from ratings like speed, diving and dodging, and earns XP to raise them, you earn money to buy better players and a bigger fan base, and you draft rookies every offseason.</p>
     </div>
   </section>
@@ -385,7 +385,7 @@ function setFormation(play){
   add(O,{role:'WR1',team:'O',c:G.cO,x:L-4,y:FT+16,spd:mySpd(R.WR1),idle:'ready',anim:'ready',p:R.WR1,skin:R.WR1.skin,tag:1});
   add(O,{role:'WR2',team:'O',c:G.cO,x:L-4,y:FB-14,spd:mySpd(R.WR2),idle:'ready',anim:'ready',p:R.WR2,skin:R.WR2.skin,tag:2});
   add(O,{role:'TE',team:'O',c:G.cO,x:L-5,y:clamp(by+36,FT+34,FB-34),spd:mySpd(R.TE),idle:'set',anim:'set',p:R.TE,skin:R.TE.skin,tag:3});
-  const dr=G.oppR.def,base=(45+(dr-40)*.3)*(1+G.dK*.5),dacc=2.9+(dr-40)*.04+G.dK*4;
+  const dr=G.oppR.def,base=(47.5+(dr-40)*.3)*(1+G.dK*.5),dacc=2.9+(dr-40)*.04+G.dK*4;
   const rec=r=>O.find(e=>e.role===r);
   for(let i=0;i<4;i++)add(D,{role:'DL',i,team:'D',c:G.cD,face:-1,x:L+6,y:by+(i-1.5)*13,spd:base-5+rnd(-2,2),acc:6,idle:'set',anim:'set'});
   add(D,{role:'LB',i:0,team:'D',c:G.cD,face:-1,x:L+30,y:by+20,spd:base+rnd(-2,2),acc:dacc,idle:'ready',anim:'ready',man:rec('TE'),cush:6,react:.6});
@@ -449,10 +449,11 @@ function resolveBall(){
   const oob=b.ty<FT||b.ty>FB||b.tx>WW-2;
   const dR=r?ed(r,lp):99,nd=nearestDef(lp,false),dD=nd.dist,cat=r?r.p.g.CAT:5,dr=G.oppR.def;
   if(!oob&&dR<=10){
-    let p=.74+cat*.025+G.oc*.025;const cont=dD<7.5;if(cont)p-=.27+(dr-60)/220+G.dK*.5;
+    let p=.8+cat*.02+G.oc*.025;const cont=dD<7.5;if(cont)p-=.17+(dr-60)/220+G.dK*.5;
     if(cont&&dD<dR&&Math.random()<.11+(dr-60)/300+G.dK*.4)return intercept(nd.d);
     if(Math.random()<p){G.caught=r;G.carrier=r;r.hasBall=true;b.vis=false;G.phase='run';r.brk=0;setAnim(r,'catch',.12);SFX.cat();
-      if(r.vx>r.spd*.55){r.strideT=1.8;float('IN STRIDE!',r.x,r.y-22,'#ffd23f');}else{r.slowT=.25;float('CATCH!',r.x,r.y-22,'#5bdb85');}
+      r.freeJ=1.6;G.def.forEach(d=>{if(ed(d,r)<14){d.slowT=.3;d.tkCd=.25;}});
+      if(r.vx>r.spd*.55){r.strideT=1.8;float('IN STRIDE!',r.x,r.y-22,'#ffd23f');}else{r.slowT=.1;float('CATCH!',r.x,r.y-22,'#5bdb85');}
       if(r.x>=GOALX)endPlay('td');return;}
     float(cont?'BROKEN UP':'DROPPED',lp.x,lp.y-18,'#ff6257');return endPlay('inc');}
   if(!oob&&dD<=8&&Math.random()<.4+G.dK)return intercept(nd.d);
@@ -461,6 +462,7 @@ function resolveBall(){
 function intercept(d){G.ball.vis=false;d.hasBall=true;setAnim(d,'celebrate',3);G.intBy=d;endPlay('int');}
 function tryTackle(d,c){
   if(c.diveT>0||d.tkCd>0)return;
+  if(c.freeJ>0&&!(c.jukeT>0)&&Math.random()<.35-G.dK){c.freeJ=0;c.jukeT=.25;c.autoJ=false;setAnim(c,'juke',.25);SFX.juke();}else if(c.freeJ>0)c.freeJ=0;
   if(c.jukeT>0&&!(c.autoJ&&Math.random()<.4)){d.downT=1.1;d.tkCd=1.4;setAnim(d,'fall',1.1);float('JUKED!',d.x,d.y-20,'#ffd23f');return;}
   if(G.phase==='run'&&(c.brk||0)<2&&Math.random()<clamp(((c.p&&c.p.g.STR||5)-3)*.045-G.dK*.4,0,.32)){c.brk=(c.brk||0)+1;d.downT=.9;d.tkCd=1.3;setAnim(d,'fall',.9);c.slowT=.35;float('BROKEN TACKLE',c.x,c.y-22,'#ffd23f');SFX.hit();return;}
   setAnim(d,'tackle',3);d.face=c.x>=d.x?1:-1;setAnim(c,'down',3);G.cam.sh=.25;SFX.hit();
@@ -573,11 +575,11 @@ function updateLive(dt){
     if(car.diveT>0){car.diveT-=dt;car.vx=car.spd*(car.sliding?.9:1.5);car.vy=0;if(car.diveT<=0){car.x+=0;return endPlay(car.sliding?'slide':'dive');}}
     else{
       if(dive){car.diveT=.2+(car.p.g.DIV||5)*.022;car.sliding=car===qb;setAnim(car,car.sliding?'slide':'dive',3);car.face=1;SFX.juke();}
-      else{const aj=autoJuke&&!juke&&nearestDef(car,true).dist<12;if((juke||aj)&&(car.jukeCd||0)<=0){car.autoJ=aj;car.jukeT=.18+(car.p.g.DOD||5)*.026;car.jukeCd=1.7-(car.p.g.DOD||5)*.09;const nd=nearestDef(car,true).d;const dir=mv.y?Math.sign(mv.y):(nd&&nd.y>car.y?-1:1);car.vy=dir*120;setAnim(car,'juke',.3);SFX.juke();}
+      else{const aj=autoJuke&&!juke&&nearestDef(car,true).dist<12;if((juke||aj)&&(car.jukeCd||0)<=0){car.autoJ=aj;car.jukeT=.18+(car.p.g.DOD||5)*.026;car.jukeCd=1.7-(car.p.g.DOD||5)*.09;const nd=nearestDef(car,true).d;const dir=mv.y?Math.sign(mv.y):(nd&&nd.y>car.y?-1:1);car.vy=(car.y<FT+24?1:car.y>FB-24?-1:dir)*120;setAnim(car,'juke',.3);SFX.juke();}
         let dx=mv.x,dy=mv.y;if(!dx&&!dy){if(P.dir&&car===rb&&G.pt<P.dir[2]){dx=P.dir[0];dy=-P.dir[1]*G.sweepDir;}else{dx=1;dy=0;}}
         const s=car.spd*.9*(car.strideT>0?1.2:1)*(car.slowT>0?.5:1)*(car.jukeT>0?.75:1);if(!(car.jukeT>0))steer(car,dx*s,dy*s*.8,dt);else steer(car,dx*s,car.vy,dt*.3);}
     }
-    car.strideT=Math.max(0,(car.strideT||0)-dt);car.jukeT=Math.max(0,(car.jukeT||0)-dt);car.jukeCd=Math.max(0,(car.jukeCd||0)-dt);car.slowT=Math.max(0,(car.slowT||0)-dt);
+    car.freeJ=Math.max(0,(car.freeJ||0)-dt);car.strideT=Math.max(0,(car.strideT||0)-dt);car.jukeT=Math.max(0,(car.jukeT||0)-dt);car.jukeCd=Math.max(0,(car.jukeCd||0)-dt);car.slowT=Math.max(0,(car.slowT||0)-dt);
   }
   /* offense AI */
   G.off.forEach(e=>{
