@@ -76,8 +76,10 @@ ul{margin:0;padding-left:20px}
 <div id="app">
   <header>
     <div class="logo">FOURTH <span>&amp;</span> LONG</div>
-    <div class="row"><button id="muteBtn" class="sm">Sound: on</button></div>
+    <div class="row"><span id="ver" class="dim"></span><button id="muteBtn" class="sm">Sound: on</button></div>
   </header>
+
+  <div id="updBar" class="panel row" style="border-color:var(--gold)" hidden><span class="gold">A newer version of the game is out.</span><button id="btnUpd" class="go sm">Update now</button><span class="dim">Your saves are kept.</span></div>
 
   <section id="title" class="col">
     <canvas id="tcv" width="480" height="270" aria-label="Game preview"></canvas>
@@ -1095,6 +1097,12 @@ function loop(ts){const dt=Math.min(.05,(ts-lastT)/1000||0);lastT=ts;T+=dt;
     G.hype=0;drawWorld(dt);g.fillStyle='rgba(5,7,15,.72)';g.fillRect(0,70,W,72);g.fillStyle='#ffd23f';g.fillRect(0,70,W,2);g.fillRect(0,140,W,2);ctxt('FOURTH & LONG',W/2,84,'#ffd23f',5,'#7a3b00');ctxt('BE THE QUARTERBACK. BUILD THE DYNASTY.',W/2,122,'#eef1fb',2,'#05070f');
     G=k;fieldCv=f;crowdCv=c[0];crowdG=c[1];}
   requestAnimationFrame(loop);}
+const BUILD='__BUILD__';
+if(BUILD.indexOf('__')!==0){$('#ver').textContent='Version '+BUILD;let newest=null;
+  const chk=()=>{if(!$('#game').hidden)return;try{fetch('version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(v=>{v=(v||'').trim();if(v&&v!==BUILD){newest=v;$('#updBar').hidden=false;}}).catch(()=>{});}catch(e){}};
+  chk();setInterval(chk,120000);addEventListener('focus',chk);
+  $('#btnUpd').addEventListener('click',()=>{location.replace(location.pathname+'?v='+encodeURIComponent(newest||Date.now()));});}
+else $('#ver').textContent='Preview copy';
 show('title');requestAnimationFrame(loop);
 window.__fal={step:n=>{for(let i=0;i<n;i++){T+=.033;frame(.033);}},get G(){return G},get C(){return C},PLAYS,leadThrow,choosePlay,snap,nearestDef,resolveOpp,kickPress,inp};
 })();
