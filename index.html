@@ -120,7 +120,7 @@ ul{margin:0;padding-left:20px}
       <p>You are the quarterback and the head coach. Call a play from a 39-play book built on real football concepts (you get four that fit the down, and can swap for four more), snap it, find the open receiver, then run after the catch. On Easy and Normal your defense plays on its own, and how good it is depends on your roster. On Hard and Legend you play defense too: you control one defender at a time, chase the ball, and dive to make the tackle.</p>
       <p><span class="gold">Throw:</span> press anywhere on the screen (it does not have to be on the quarterback or even on the field), drag back like a slingshot, and release. Press anywhere, hold, and drag to the left: the further left you pull, the further forward the ball goes. Let go to throw. If you would rather not hold a button down, turn on <span class="gold">No-hold aim</span> under the field: aiming then starts by itself at the snap, you slide the cursor left, and one click or Space throws.<kbd>1</kbd>–<kbd>4</kbd> also throw to the numbered receiver. A green number is open, red is covered.</p>
       <p><span class="gold">Interceptions:</span> defenders can pick the ball off two ways. They can jump in front of a low throw while it is in the air, or beat your receiver to the spot where it lands. The yard count turns red and says DEFENDER when one is sitting where you are aiming. Throw over them with a longer pull, or pick someone else.</p>
-      <p><span class="gold">Run:</span> <kbd>WASD</kbd> or arrows (on a phone, drag the left side of the field). <kbd>F</kbd> or <kbd>Space</kbd> dives for extra yards, or slides when you scramble with the QB. <kbd>Shift</kbd> jukes a tackler. Turn on <span class="gold">Auto juke</span> under the field and your runner jukes on his own, but it fools the tackler 40 to 65 times in 100 depending on his DOD rating, and after the first one or two in a play it almost always fails. A juke you time yourself with Shift is better: 50 to 75 times in 100, again by DOD rating, with no limit per play. Hit a receiver <span class="gold">in stride</span>, while he is running upfield, and he gets a burst of speed after the catch. Right after any catch the nearest defenders are a step slow, and your receiver will usually shake the first tackler on his own. Once the ball is caught the defense speeds up a little to chase.</p>
+      <p><span class="gold">Run:</span> <kbd>WASD</kbd> or arrows (on a phone, drag the left side of the field). <kbd>F</kbd> or <kbd>Space</kbd> dives for extra yards, or slides when you scramble with the QB. <kbd>Shift</kbd> jukes a tackler. Turn on <span class="gold">Auto moves</span> under the field and your runner picks a move on his own when a tackler closes in (juke, spin, stiff arm, truck or hurdle, whichever suits his ratings) and half-mashes out of tackles for you. Auto is weaker than doing it yourself: an auto juke works 40 to 65 times in 100 and the other auto moves work about half as often as a hand-timed one, and after the first two or three in a play they almost always fail. A move you time yourself has no limit per play: a hand-timed juke works 50 to 75 times in 100 by DOD rating. <span class="gold">Running plays get a boost:</span> on a handoff or keeper every move is about 8 points in 100 more likely to work, the runner shrugs off about one arm tackle in ten, he is a touch faster, and tackles take one less press to break. Hit a receiver <span class="gold">in stride</span>, while he is running upfield, and he gets a burst of speed after the catch. Right after any catch the nearest defenders are a step slow, and your receiver will usually shake the first tackler on his own. Once the ball is caught the defense speeds up a little to chase.</p>
       <p><span class="gold">Pass rush:</span> the bar under your quarterback is the pocket. When it runs out the rushers break free, the screen edges pulse red, and you need to throw or run. Get hit while you throw and the ball comes out slow and wobbly, which is easy to pick off.</p>
       <p><span class="gold">Blitz and hot routes:</span> before the snap a red <b>!</b> over a defender means he is showing blitz (sometimes it is a bluff, and on harder levels some blitzes are hidden). Press <kbd>H</kbd> or tap the HOT box to change the running back's job: break straight to the flat, where nobody covers him if they do blitz, or stay in and block for extra time.</p>
       <p><span class="gold">Jump balls:</span> throw to a covered receiver and time slows as the ball comes down. A ring closes on the catch spot. Press <kbd>F</kbd> or tap as it closes: perfect timing wins the ball, early or late and it is broken up or picked off. On defense the same press swats or intercepts.</p>
@@ -164,7 +164,7 @@ ul{margin:0;padding-left:20px}
       <div id="ticker"></div>
     </div>
     <div id="pad">
-      <div class="acts"><button id="btnJuke">Juke<small>key: Shift</small></button><button id="btnAuto" class="sm">Auto juke: off</button><button id="btnDive">Dive / Slide<small>key: F</small></button></div>
+      <div class="acts"><button id="btnJuke">Juke<small>key: Shift</small></button><button id="btnAuto" class="sm">Auto moves: off</button><button id="btnDive">Dive / Slide<small>key: F</small></button></div>
       <div class="acts mv" id="mvRow"><button data-mv="stiff">Stiff arm<small>key: Q</small></button><button data-mv="spin">Spin<small>key: E</small></button><button data-mv="truck">Truck<small>key: R</small></button><button data-mv="hurdle">Hurdle<small>key: C</small></button></div>
       <button id="btnFree" class="sm">No-hold aim: off</button><button id="btnFull" class="sm">Full screen</button><button id="btnCel" class="sm">Celly<small>key: G</small></button><button id="btnQuit" class="sm">Save and leave</button>
     </div>
@@ -661,19 +661,30 @@ function resolveBall(){
 }
 function intercept(d){hit(1.5);G.slowT=.5;G.ball.vis=false;d.hasBall=true;setAnim(d,pick(['celebrate','dance','flex']),3);G.def.forEach(x=>{if(x!==d&&x.downT<=0)setAnim(x,'celebrate',3);});G.intBy=d;endPlay('int');}
 const jk=c=>clamp(((c.p&&c.p.g.DOD||5)-1)/9,0,1)*.25;
+let RUNB=.8,SLIPK=.13,AUTOK=[.5,.15],AUTOM=3.5;
+const runBias=()=>G.side!=='def'&&!G.demo&&!G.ret&&G.play&&G.play.type==='run'&&!G.caught?RUNB*(G.dK<0?.5:1):0;
+const autoCap=c=>1+Math.floor((c.p&&c.p.g.DOD||5)/3.5)+(runBias()?1:0);
+function autoPick(c,d){const q=c.p&&c.p.g||{},STR=q.STR||5,DOD=q.DOD||5,DIV=q.DIV||5,ahead=d.x>c.x+2,o=[];
+  if(d.lungeT>0&&!(c.hurdCd>0))return 'hurdle';
+  if(!(c.jukeCd>0))o.push(['juke',DOD+rnd(2)]);if(!(c.spinCd>0))o.push(['spin',DOD*.9+rnd(2)]);if(!(c.stiffCd>0))o.push(['stiff',STR+rnd(2)]);
+  if(ahead&&!(c.truckCd>0)&&STR>=6.5&&(!G.stam||stamOf(c.p)>40))o.push(['truck',STR*.8+rnd(2)]);
+  if(ahead&&!(c.hurdCd>0)&&DIV>=7.5)o.push(['hurdle',DIV*.6+rnd(2)]);
+  o.sort((a,b)=>b[1]-a[1]);return o.length?o[0][0]:null;}
 function tryTackle(d,c){
   if(c.diveT>0||d.tkCd>0)return;
+  const rb=runBias(),bo=.1*rb,ak=!c.autoM?1:(c.ajN||0)>autoCap(c)?AUTOK[1]:AUTOK[0];
   if(c.wrapT>0){if(d!==c.wrapBy&&!d.inPile){d.inPile=true;d.tkCd=.7;c.wrapNeed+=1;c.wrapT=Math.min(c.wrapT,.42);setAnim(d,'tackle',.7);d.face=c.x>=d.x?1:-1;hit(.4,true);}return;}
   if(c.freeJ>0&&!(c.jukeT>0)&&Math.random()<.35-DK()){c.freeJ=0;c.jukeT=.25;c.autoJ=false;setAnim(c,'juke',.25);SFX.juke();}else if(c.freeJ>0)c.freeJ=0;
-  if(c.jukeT>0&&!(Math.random()>(c.autoJ?((c.ajN||0)>1+Math.floor((c.p.g.DOD||5)/3.5)?.15:.4+jk(c)):.5+jk(c)))){d.downT=1.1;d.tkCd=1.4;setAnim(d,'fall',1.1);float('JUKED!',d.x,d.y-20,'#ffd23f');hit(.4,true);if(G.side!=='def'){G.slowT=.22;cheer(.35,.8);}return;}
+  if(c.jukeT>0&&!(Math.random()>(c.autoJ?((c.ajN||0)>autoCap(c)?.15:.4+jk(c)+bo):.5+jk(c)+bo))){d.downT=1.1;d.tkCd=1.4;setAnim(d,'fall',1.1);float('JUKED!',d.x,d.y-20,'#ffd23f');hit(.4,true);if(G.side!=='def'){G.slowT=.22;cheer(.35,.8);}return;}
   const STR=c.p&&c.p.g.STR||5,off=G.side!=='def';
-  if(c.hurdT>0){if(d.lungeT>0||Math.random()<clamp(.2+(c.p&&c.p.g.DIV||5)*.045-DK()*.4,.1,.7)){d.downT=.9;d.tkCd=1.3;setAnim(d,'fall',.9);float('HURDLED!',c.x,c.y-34,'#ffd23f');hit(.5,true);cheer(.6,1);mo(4);G.slowT=.25;return;}
-    c.riskF=.13;float('CAUGHT IN THE AIR',c.x,c.y-34,'#ff6257');return finishTackle(d,c,2);}
-  if(c.spinT>0&&Math.random()<clamp(.5+jk(c)*1.2-DK()*.4,.3,.85)){d.downT=1;d.tkCd=1.4;setAnim(d,'fall',1);float('SPIN MOVE!',d.x,d.y-20,'#ffd23f');hit(.5,true);cheer(.35,.8);G.slowT=.2;return;}
-  if(c.stiffT>0){c.stiffT=0;if(Math.random()<clamp(.42+(STR-4)*.06-DK()*.5,.2,.85)){d.downT=1.1;d.tkCd=1.5;setAnim(d,'fall',1.1);d.vx=-40;float('STIFF ARM!',d.x,d.y-20,'#ffd23f');hit(1);cheer(.4,.8);return;}c.riskF=.04;}
-  if(c.truckT>0){c.truckT=0;if(d.x>c.x-3&&Math.random()<clamp(.25+(STR-4)*.085-DK()*.5,.1,.8)){d.downT=1.5;d.tkCd=1.9;setAnim(d,'fall',1.5);d.vx=70;float('TRUCKED!',d.x,d.y-22,'#ffd23f');hit(2);cheer(.7,1.2);mo(5);c.slowT=.2;if(G.stam&&c.p&&G.stam[c.p.id]!=null)G.stam[c.p.id]=Math.max(0,G.stam[c.p.id]-5);return;}
-    c.riskF=.12;float('STOOD UP!',c.x,c.y-24,'#ff6257');return finishTackle(d,c,2);}
-  if(off&&!G.demo&&G.phase==='run'&&!c.wrapUsed){c.wrapUsed=1;c.wrapT=.8;c.wrapN=0;c.wrapNeed=clamp(Math.round(MASHB-STR*.35+DK()*8),3,9);c.wrapBy=d;d.tkCd=.9;setAnim(d,'tackle',.8);d.face=c.x>=d.x?1:-1;hit(.6);inp.mash=0;return;}
+  if(c.hurdT>0){if(d.lungeT>0||Math.random()<clamp(.2+(c.p&&c.p.g.DIV||5)*.045-DK()*.4+bo,.1,.75)*ak){d.downT=.9;d.tkCd=1.3;setAnim(d,'fall',.9);float('HURDLED!',c.x,c.y-34,'#ffd23f');hit(.5,true);cheer(.6,1);mo(4);G.slowT=.25;return;}
+    c.riskF=c.autoM?.04:.13;float('CAUGHT IN THE AIR',c.x,c.y-34,'#ff6257');return finishTackle(d,c,2);}
+  if(c.spinT>0&&Math.random()<clamp(.5+jk(c)*1.2-DK()*.4+bo,.3,.88)*ak){d.downT=1;d.tkCd=1.4;setAnim(d,'fall',1);float('SPIN MOVE!',d.x,d.y-20,'#ffd23f');hit(.5,true);cheer(.35,.8);G.slowT=.2;return;}
+  if(c.stiffT>0){c.stiffT=0;if(Math.random()<clamp(.42+(STR-4)*.06-DK()*.5+bo,.2,.88)*ak){d.downT=1.1;d.tkCd=1.5;setAnim(d,'fall',1.1);d.vx=-40;float('STIFF ARM!',d.x,d.y-20,'#ffd23f');hit(1);cheer(.4,.8);return;}c.riskF=.04;}
+  if(c.truckT>0){c.truckT=0;if(d.x>c.x-3&&Math.random()<clamp(.25+(STR-4)*.085-DK()*.5+bo,.1,.85)*ak){d.downT=1.5;d.tkCd=1.9;setAnim(d,'fall',1.5);d.vx=70;float('TRUCKED!',d.x,d.y-22,'#ffd23f');hit(2);cheer(.7,1.2);mo(5);c.slowT=.2;if(G.stam&&c.p&&G.stam[c.p.id]!=null)G.stam[c.p.id]=Math.max(0,G.stam[c.p.id]-5);return;}
+    c.riskF=c.autoM?.04:.12;float('STOOD UP!',c.x,c.y-24,'#ff6257');return finishTackle(d,c,2);}
+  if(off&&rb&&G.phase==='run'&&(c.slipN||0)<2&&Math.random()<SLIPK*rb){c.slipN=(c.slipN||0)+1;d.downT=.7;d.tkCd=1.2;setAnim(d,'fall',.7);c.slowT=.12;float('SLIPS THE TACKLE',c.x,c.y-24,'#ffd23f');hit(.5,true);return;}
+  if(off&&!G.demo&&G.phase==='run'&&!c.wrapUsed){c.wrapUsed=1;c.wrapT=.8;c.wrapN=0;c.wrapNeed=clamp(Math.round(MASHB-STR*.35+DK()*8-rb),3,9);c.wrapBy=d;d.tkCd=.9;setAnim(d,'tackle',.8);d.face=c.x>=d.x?1:-1;hit(.6);inp.mash=0;return;}
   if(!off&&G.phase==='run'&&(c.brk||0)<2&&Math.random()<clamp((STR-3)*.045-DK()*.4,0,.32)){c.brk=(c.brk||0)+1;d.downT=.9;d.tkCd=1.3;setAnim(d,'fall',.9);c.slowT=.35;float('BROKEN TACKLE',c.x,c.y-22,'#ffd23f');hit(1);return;}
   finishTackle(d,c,1);
 }
@@ -894,21 +905,23 @@ function updateLive(dt){
     if(car){const nd=nearestDef({x:car.x+14,y:car.y},true);let dy=0;if(nd.d&&nd.dist<46&&nd.d.x>car.x-6)dy=(car.y>=nd.d.y?1:-1)*.75;if(car.y<FT+14)dy=.5;if(car.y>FB-14)dy=-.5;const m=Math.hypot(1,dy);mv={x:1/m,y:dy/m};}
   }
   if(car){
-    if(car.wrapT>0){car.wrapT-=dt;car.wrapN+=mN;car.vx+=(car.spd*.04-car.vx)*Math.min(1,14*dt);car.vy+=(0-car.vy)*Math.min(1,14*dt);
+    if(car.wrapT>0){car.wrapT-=dt;car.wrapN+=mN+(autoJuke&&!def?dt*AUTOM:0);car.vx+=(car.spd*.04-car.vx)*Math.min(1,14*dt);car.vy+=(0-car.vy)*Math.min(1,14*dt);
       if(car.wrapN>=car.wrapNeed){const d=car.wrapBy;car.wrapT=0;d.downT=1;d.tkCd=1.6;d.lockT=0;setAnim(d,'fall',1);car.brk=(car.brk||0)+1;car.slowT=.3;car.mashCd=.45;float('BROKE FREE!',car.x,car.y-26,'#ffd23f');hit(1.2);cheer(.5,1);mo(4);}
       else if(car.wrapT<=0){car.riskF=car.wrapN>0?.012:0;finishTackle(car.wrapBy,car,1);if(G.state!=='live'||G.phase==='loose')return;}}
     else if(car.diveT>0){car.diveT-=dt;car.vx=car.spd*(car.sliding?.9:1.5);car.vy=0;if(car.diveT<=0){car.x+=0;return endPlay(car.sliding?'slide':'dive');}}
     else{
       if(dive&&!(car.mashCd>0)){car.diveT=.2+(car.p.g.DIV||5)*.022;car.sliding=car===qb;setAnim(car,car.sliding?'slide':'dive',3);car.face=1;SFX.juke();}
-      else{const aj=(autoJuke||def)&&!juke&&nearestDef(car,true).dist<12;if((juke||aj)&&(car.jukeCd||0)<=0&&!(car.mvCd>0)){car.mvCd=.9;car.autoJ=aj;car.jukeT=.15+(car.p.g.DOD||5)*.015;car.jukeCd=1.7-(car.p.g.DOD||5)*.09;const nd=nearestDef(car,true).d;let jx=0,jy=nd&&nd.y>car.y?-1:1;if(!aj&&!def&&(um.x||um.y)){jx=um.x;jy=um.y;}
+      else{let am=null;if(autoJuke&&!def&&!juke&&!MV&&!(car.mvCd>0)&&!(car.jukeT>0)){const n0=nearestDef(car,true);if(n0.d&&n0.dist<13)am=autoPick(car,n0.d);}
+        const aj=def?(!juke&&nearestDef(car,true).dist<12):am==='juke',MX=MV||(am&&am!=='juke'?am:null);if((juke||aj)&&(car.jukeCd||0)<=0&&!(car.mvCd>0)){car.mvCd=.9;car.autoJ=aj;car.jukeT=.15+(car.p.g.DOD||5)*.015;car.jukeCd=1.7-(car.p.g.DOD||5)*.09;const nd=nearestDef(car,true).d;let jx=0,jy=nd&&nd.y>car.y?-1:1;if(!aj&&!def&&(um.x||um.y)){jx=um.x;jy=um.y;}
         if(car.y<FT+20&&jy<0||car.y>FB-20&&jy>0)jy=-jy;const J=aj?32:42;car.vy=jy*J;car.vx+=jx*J*.7;if(aj)car.ajN=(car.ajN||0)+1;setAnim(car,'juke',.3);SFX.juke();}
-        if(MV&&!def&&!(car.mvCd>0)&&!(car.jukeT>0)){
-          if(MV==='stiff'&&!(car.stiffCd>0)){car.stiffT=.4;car.stiffCd=2;car.mvCd=.9;setAnim(car,'stiff',.4);SFX.juke();}
-          else if(MV==='spin'&&!(car.spinCd>0)){car.spinT=.34;car.spinCd=2.4;car.mvCd=.9;setAnim(car,'spin',.34);SFX.juke();}
-          else if(MV==='truck'&&!(car.truckCd>0)){car.truckT=.45;car.truckCd=2.2;car.mvCd=.9;setAnim(car,'truck',.45);beep(150,.1,'sawtooth',.05,-40);}
-          else if(MV==='hurdle'&&!(car.hurdCd>0)){car.hurdT=.42;car.hurdCd=2.5;car.mvCd=.9;setAnim(car,'hurdle',.42);SFX.juke();}}
+        if(MX&&!def&&!(car.mvCd>0)&&!(car.jukeT>0)){let ok=true;
+          if(MX==='stiff'&&!(car.stiffCd>0)){car.stiffT=.4;car.stiffCd=2;car.mvCd=.9;setAnim(car,'stiff',.4);SFX.juke();}
+          else if(MX==='spin'&&!(car.spinCd>0)){car.spinT=.34;car.spinCd=2.4;car.mvCd=.9;setAnim(car,'spin',.34);SFX.juke();}
+          else if(MX==='truck'&&!(car.truckCd>0)){car.truckT=.45;car.truckCd=2.2;car.mvCd=.9;setAnim(car,'truck',.45);beep(150,.1,'sawtooth',.05,-40);}
+          else if(MX==='hurdle'&&!(car.hurdCd>0)){car.hurdT=.42;car.hurdCd=2.5;car.mvCd=.9;setAnim(car,'hurdle',.42);SFX.juke();}else ok=false;
+          if(ok){car.autoM=!MV;if(!MV)car.ajN=(car.ajN||0)+1;}}
         let dx=mv.x,dy=mv.y;if(!dx&&!dy){if(P.dirAbs&&G.pt<P.dirAbs[2]+.5){dx=P.dirAbs[0];dy=P.dirAbs[1];}else if(P.dir&&G.pt<P.dir[2]){dx=P.dir[0];dy=-P.dir[1]*G.sweepDir;}else{dx=1;dy=0;}}
-        const s=car.spd*.9*(G.two&&car===qb?.9:1)*(car.strideT>0?1.2:1)*(car.slowT>0?.5:1)*(car.jukeT>0?.75:1)*(car.stiffT>0?.93:1)*(car.spinT>0?.8:1)*(car.truckT>0?.86:1);if(!(car.jukeT>0))steer(car,dx*s,dy*s*.8,dt);else steer(car,dx*s,car.vy,dt*.3);}
+        const s=car.spd*.9*(G.two&&car===qb?.9:1)*(car.strideT>0?1.2:1)*(car.slowT>0?.5:1)*(car.jukeT>0?.75:1)*(car.stiffT>0?.93:1)*(car.spinT>0?.8:1)*(car.truckT>0?.86:1)*(1+.03*runBias());if(!(car.jukeT>0))steer(car,dx*s,dy*s*.8,dt);else steer(car,dx*s,car.vy,dt*.3);}
     }
     if(car&&!car.away&&G.side!=='def'&&car.x>(G.ret?(10+G.yl+28)*YD:G.L+14*YD)&&nearestDef(car,false).dist>44){car.away=true;float('BREAKAWAY!',car.x,car.y-32,'#ffd23f');cheer(.9,2);G.hype=Math.max(G.hype,2);speak(pick(['He is gone!','Nobody is going to catch him!','He could go all the way!']));}
   car.freeJ=Math.max(0,(car.freeJ||0)-dt);car.strideT=Math.max(0,(car.strideT||0)-dt);car.jukeT=Math.max(0,(car.jukeT||0)-dt);car.jukeCd=Math.max(0,(car.jukeCd||0)-dt);car.slowT=Math.max(0,(car.slowT||0)-dt);
@@ -1218,7 +1231,7 @@ $('#btnFull').addEventListener('click',()=>setFull(!$('#game').classList.contain
 let fsReal=false;
 const updFree=()=>{$('#btnFree').textContent='No-hold aim: '+(freeAim?'on':'off');};updFree();
 $('#btnFree').addEventListener('click',()=>{freeAim=!freeAim;inp.aim=null;try{localStorage.setItem('fal_freeaim',freeAim?'1':'0');}catch(e){}updFree();});
-const updAuto=()=>{$('#btnAuto').textContent='Auto juke: '+(autoJuke?'on':'off');};updAuto();
+const updAuto=()=>{$('#btnAuto').textContent='Auto moves: '+(autoJuke?'on':'off');};updAuto();
 $('#btnAuto').addEventListener('click',()=>{autoJuke=!autoJuke;try{localStorage.setItem('fal_autojuke',autoJuke?'1':'0');}catch(e){}updAuto();});
 $('#muteBtn').addEventListener('click',()=>{muted=!muted;$('#muteBtn').textContent='Sound: '+(muted?'off':'on');if(muted){ambStop();hush();}});
 
@@ -1426,14 +1439,14 @@ function loop(ts){const dt=Math.min(.05,(ts-lastT)/1000||0);lastT=ts;T+=dt;
     G.hype=0;drawWorld(dt);g.fillStyle='rgba(5,7,15,.72)';g.fillRect(0,70,W,72);g.fillStyle='#ffd23f';g.fillRect(0,70,W,2);g.fillRect(0,140,W,2);ctxt('FOURTH & LONG',W/2,84,'#ffd23f',5,'#7a3b00');ctxt('BE THE QUARTERBACK. BUILD THE DYNASTY.',W/2,122,'#eef1fb',2,'#05070f');
     G=k;fieldCv=f;crowdCv=c[0];crowdG=c[1];}
   requestAnimationFrame(loop);}
-const BUILD='Oct 9 9:54am';
+const BUILD='Oct 9 12:35pm';
 if(BUILD.indexOf('__')!==0){$('#ver').textContent='Version '+BUILD;let newest=null;
   const chk=()=>{if(!$('#game').hidden)return;try{fetch('version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(v=>{v=(v||'').trim();if(v&&v!==BUILD){newest=v;$('#updBar').hidden=false;}}).catch(()=>{});}catch(e){}};
   chk();setInterval(chk,120000);addEventListener('focus',chk);
   $('#btnUpd').addEventListener('click',()=>{location.replace(location.pathname+'?v='+encodeURIComponent(newest||Date.now()));});}
 else $('#ver').textContent='Preview copy';
 show('title');requestAnimationFrame(loop);
-window.__fal={DKT,SIMB,set MASHB(v){MASHB=v},set RUSHB(v){RUSHB=v},set FUMK(v){FUMK=v},step:n=>{for(let i=0;i<n;i++){T+=.033;frame(.033);}},get G(){return G},get C(){return C},PLAYS,leadThrow,choosePlay,snap,nearestDef,resolveOpp,kickPress,inp};
+window.__fal={DKT,SIMB,toPlaycall,set RUNB(v){RUNB=v},set SLIPK(v){SLIPK=v},set AUTOK(v){AUTOK=v},set AUTOM(v){AUTOM=v},set MASHB(v){MASHB=v},set RUSHB(v){RUSHB=v},set FUMK(v){FUMK=v},step:n=>{for(let i=0;i<n;i++){T+=.033;frame(.033);}},get G(){return G},get C(){return C},PLAYS,leadThrow,choosePlay,snap,nearestDef,resolveOpp,kickPress,inp};
 })();
 </script>
 </body>
