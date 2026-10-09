@@ -38,6 +38,10 @@ To put it online, turn on GitHub Pages for this repo (Settings → Pages → dep
 - An animation bank of 20 poses, drawn in code: run, backpedal, dropback, throw, catch, block, juke, dive, slide, tackle, fall, celebrate, kick and more
 - Playable defense on Hard and Legend: control one defender, switch to the nearest, dive to tackle, pick off passes. On Easy and Normal the defense plays itself
 - Press `G` after a big play to celebrate
+- Quick match: one game between any two teams with every player rated the same
+- Playable kickoff returns, kick blocks, and two-point tries on both sides of the ball
+- Momentum meter, clutch time, slow motion on big plays, crowd noise and a spoken announcer
+- Career depth: energy and injuries, a rival, owner goals, season awards and a record book
 - Career mode: 12 teams, an 11-game season, a four-team playoff and the Pixel Bowl
 - XP, level-ups and skill points, free agents, facility upgrades, a rookie draft, aging and retirement
 - Day, night, snow and rain games
