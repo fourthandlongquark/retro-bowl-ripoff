@@ -361,8 +361,8 @@ function applyResult(ms,os,opp,po){
   C.roster.forEach(p=>{p.injNew=false;p.hp=Math.min(100,hpOf(p)+22+6*(C.fac.med||0));});
   if(!po){record(C.team,opp,ms,os);C.res[C.week]={opp,ms,os};
     C.sched[C.week].forEach(m=>{if(!m.includes(C.team)){record(m[0],m[1],simScore(C.teams[m[0]].off,C.teams[m[1]].def),simScore(C.teams[m[1]].off,C.teams[m[0]].def));}});
-    {fixC();const rv=opp===C.rival;if(rv&&!tie)C.rivalRec[won?'w':'l']++;if(rv&&won)C.goals.beatRival=true;C.streak=won?C.streak+1:0;C.pay={win:(won?3+C.fac.stad:tie?1:0)*(rv?2:1),fans:1+fans()+(C.streak>=3?1:0),rival:rv,hot:C.streak>=3};}cr=C.pay.win+C.pay.fans;C.week++;refreshFA();if(C.week>=C.sched.length)startPlayoffs();}
-  else{C.pay={win:won?5+C.fac.stad:0,fans:2+fans()};cr=C.pay.win+C.pay.fans;C.po.log.push(`${C.po.round===1?'Semifinal':'Pixel Bowl'}: ${TEAMS[C.team].name} ${ms}, ${TEAMS[opp].name} ${os}`);
+    {fixC();const rv=opp===C.rival;if(rv&&!tie)C.rivalRec[won?'w':'l']++;if(rv&&won)C.goals.beatRival=true;C.streak=won?C.streak+1:0;C.pay={win:(won?4+C.fac.stad:tie?1:0)*(rv?2:1),fans:1+fans()+(C.streak>=3?1:0),rival:rv,hot:C.streak>=3};}cr=C.pay.win+C.pay.fans;C.week++;refreshFA();if(C.week>=C.sched.length)startPlayoffs();}
+  else{C.pay={win:won?6+C.fac.stad:0,fans:2+fans()};cr=C.pay.win+C.pay.fans;C.po.log.push(`${C.po.round===1?'Semifinal':'Pixel Bowl'}: ${TEAMS[C.team].name} ${ms}, ${TEAMS[opp].name} ${os}`);
     if(C.po.round===1){const o=simWinner(...C.po.other);C.po.log.push(sline('Semifinal',o));
       if(won){C.po.round=2;C.po.myOpp=o.w;}else{const f=simWinner(opp,o.w);C.po.log.push(sline('Pixel Bowl',f));endSeason(f.w);}}
     else endSeason(won?C.team:opp);}
@@ -1270,7 +1270,7 @@ function loop(ts){const dt=Math.min(.05,(ts-lastT)/1000||0);lastT=ts;T+=dt;
     G.hype=0;drawWorld(dt);g.fillStyle='rgba(5,7,15,.72)';g.fillRect(0,70,W,72);g.fillStyle='#ffd23f';g.fillRect(0,70,W,2);g.fillRect(0,140,W,2);ctxt('FOURTH & LONG',W/2,84,'#ffd23f',5,'#7a3b00');ctxt('BE THE QUARTERBACK. BUILD THE DYNASTY.',W/2,122,'#eef1fb',2,'#05070f');
     G=k;fieldCv=f;crowdCv=c[0];crowdG=c[1];}
   requestAnimationFrame(loop);}
-const BUILD='Oct 8 8:22pm';
+const BUILD='Oct 8 8:23pm';
 if(BUILD.indexOf('__')!==0){$('#ver').textContent='Version '+BUILD;let newest=null;
   const chk=()=>{if(!$('#game').hidden)return;try{fetch('version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(v=>{v=(v||'').trim();if(v&&v!==BUILD){newest=v;$('#updBar').hidden=false;}}).catch(()=>{});}catch(e){}};
   chk();setInterval(chk,120000);addEventListener('focus',chk);

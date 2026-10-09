@@ -353,8 +353,8 @@ function applyResult(ms,os,opp,po){
   C.roster.forEach(p=>{p.injNew=false;p.hp=Math.min(100,hpOf(p)+22+6*(C.fac.med||0));});
   if(!po){record(C.team,opp,ms,os);C.res[C.week]={opp,ms,os};
     C.sched[C.week].forEach(m=>{if(!m.includes(C.team)){record(m[0],m[1],simScore(C.teams[m[0]].off,C.teams[m[1]].def),simScore(C.teams[m[1]].off,C.teams[m[0]].def));}});
-    {fixC();const rv=opp===C.rival;if(rv&&!tie)C.rivalRec[won?'w':'l']++;if(rv&&won)C.goals.beatRival=true;C.streak=won?C.streak+1:0;C.pay={win:(won?3+C.fac.stad:tie?1:0)*(rv?2:1),fans:1+fans()+(C.streak>=3?1:0),rival:rv,hot:C.streak>=3};}cr=C.pay.win+C.pay.fans;C.week++;refreshFA();if(C.week>=C.sched.length)startPlayoffs();}
-  else{C.pay={win:won?5+C.fac.stad:0,fans:2+fans()};cr=C.pay.win+C.pay.fans;C.po.log.push(`${C.po.round===1?'Semifinal':'Pixel Bowl'}: ${TEAMS[C.team].name} ${ms}, ${TEAMS[opp].name} ${os}`);
+    {fixC();const rv=opp===C.rival;if(rv&&!tie)C.rivalRec[won?'w':'l']++;if(rv&&won)C.goals.beatRival=true;C.streak=won?C.streak+1:0;C.pay={win:(won?4+C.fac.stad:tie?1:0)*(rv?2:1),fans:1+fans()+(C.streak>=3?1:0),rival:rv,hot:C.streak>=3};}cr=C.pay.win+C.pay.fans;C.week++;refreshFA();if(C.week>=C.sched.length)startPlayoffs();}
+  else{C.pay={win:won?6+C.fac.stad:0,fans:2+fans()};cr=C.pay.win+C.pay.fans;C.po.log.push(`${C.po.round===1?'Semifinal':'Pixel Bowl'}: ${TEAMS[C.team].name} ${ms}, ${TEAMS[opp].name} ${os}`);
     if(C.po.round===1){const o=simWinner(...C.po.other);C.po.log.push(sline('Semifinal',o));
       if(won){C.po.round=2;C.po.myOpp=o.w;}else{const f=simWinner(opp,o.w);C.po.log.push(sline('Pixel Bowl',f));endSeason(f.w);}}
     else endSeason(won?C.team:opp);}
