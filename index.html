@@ -1270,7 +1270,7 @@ function loop(ts){const dt=Math.min(.05,(ts-lastT)/1000||0);lastT=ts;T+=dt;
     G.hype=0;drawWorld(dt);g.fillStyle='rgba(5,7,15,.72)';g.fillRect(0,70,W,72);g.fillStyle='#ffd23f';g.fillRect(0,70,W,2);g.fillRect(0,140,W,2);ctxt('FOURTH & LONG',W/2,84,'#ffd23f',5,'#7a3b00');ctxt('BE THE QUARTERBACK. BUILD THE DYNASTY.',W/2,122,'#eef1fb',2,'#05070f');
     G=k;fieldCv=f;crowdCv=c[0];crowdG=c[1];}
   requestAnimationFrame(loop);}
-const BUILD='Oct 8 8:23pm';
+const BUILD='Oct 8 8:35pm';
 if(BUILD.indexOf('__')!==0){$('#ver').textContent='Version '+BUILD;let newest=null;
   const chk=()=>{if(!$('#game').hidden)return;try{fetch('version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(v=>{v=(v||'').trim();if(v&&v!==BUILD){newest=v;$('#updBar').hidden=false;}}).catch(()=>{});}catch(e){}};
   chk();setInterval(chk,120000);addEventListener('focus',chk);
