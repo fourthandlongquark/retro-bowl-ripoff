@@ -817,7 +817,7 @@ function oppDrive(s){
   if(G.playDef&&!G.demo)return startDefDrive(s);
   s=clamp(Math.round(s),1,95);const o=G.opp.name.toUpperCase(),oo=G.oppR.off,md=G.myDef,R=G.r;
   let pTD=clamp(.27+(G.simB||0)+(oo-md)/150+(s-25)/260+DK()*.6+rub()*.1,.05,.78),pFG=clamp(.13+(s-25)/350,.04,.3),pTO=clamp(.11+(md-65)/300-DK()*.3,.03,.3);
-  if(!G.ot&&G.clock<12){pTD*=.5;pFG*=.7;}if(G.ot)pFG+=.1;
+  if(!G.ot&&G.clock<30){const k=Math.max(.25,G.clock/30);pTD*=k;pFG*=Math.max(.5,k);}if(G.ot)pFG+=.1;
   const x=Math.random(),out=x<pTD?'td':x<pTD+pFG?'fg':x<pTD+pFG+pTO?'to':'punt';
   const L=[`${o} BALL AT ${s>50?'YOUR '+(100-s):s===50?'MIDFIELD':'THEIR '+s}`];
   const fill=['RUN UP THE MIDDLE FOR '+ri(2,7),'QUICK PASS FOR '+ri(4,11),'SWEEP LEFT FOR '+ri(1,9),'PLAY ACTION, GAIN OF '+ri(8,22),'SCREEN PASS FOR '+ri(3,12),'DRAW PLAY FOR '+ri(2,8)];
