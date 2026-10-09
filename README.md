@@ -26,6 +26,10 @@ To put it online, turn on GitHub Pages for this repo (Settings → Pages → dep
 | Move | `WASD` / arrows | Drag the left side of the field |
 | Dive, or slide with the QB; dive tackle on defense | `F` or `Space` | Dive / Slide button |
 | Juke | `Shift` | Juke button |
+| Stiff arm / spin / truck / hurdle | `Q` / `E` / `R` / `C` | Buttons under the field |
+| Break out of a tackle, win a jump ball | Mash `F` / press `F` as the ring closes | Tap the field |
+| Hot route before the snap | `H` | Tap the HOT box |
+| Timeout / spike in hurry-up | `T` / `X` on the play screen | Tap the button |
 | Punt / field goal | `P` / `F` on the play screen | Tap the button |
 
 ## What is in it
@@ -41,6 +45,15 @@ To put it online, turn on GitHub Pages for this repo (Settings → Pages → dep
 - Quick match: one game between any two teams with every player rated the same
 - Playable kickoff returns, kick blocks, and two-point tries on both sides of the ball
 - Momentum meter, clutch time, slow motion on big plays and short crowd reactions
+- A real pass rush: a pocket timer under the quarterback, red pressure warning, and wobbly throws when he is hit
+- Blitz tells before the snap and a hot route for the running back (quick out, or stay in and block)
+- Jump balls: a timing press decides contested catches on offense and swats or picks on defense
+- Ball-carrier moves with cooldowns (juke, spin, stiff arm, truck, hurdle) and a button-mash to break the first tackle
+- Fumbles with a live scramble for the loose ball
+- Play clock, a hurry-up clock in the last 40 seconds of each half, three timeouts per half and spikes
+- Sudden-death overtime, clutch kicks with a faster shaking meter, and a small catch-up boost for the team that is behind
+- Screen shake, hit-stop and impact thuds on big hits
+- Extra money: a completion-streak pot you bank with touchdowns, and an optional owner's bet before each game
 - Career depth: energy and a health bar for every player, a rival, owner goals, season awards and a record book
 - Career mode: 12 teams, an 11-game season, a four-team playoff and the Pixel Bowl
 - XP, level-ups and skill points, free agents, facility upgrades, a rookie draft, aging and retirement
