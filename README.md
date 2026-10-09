@@ -41,7 +41,7 @@ To put it online, turn on GitHub Pages for this repo (Settings → Pages → dep
 - Quick match: one game between any two teams with every player rated the same
 - Playable kickoff returns, kick blocks, and two-point tries on both sides of the ball
 - Momentum meter, clutch time, slow motion on big plays, crowd noise and a spoken announcer
-- Career depth: energy and injuries, a rival, owner goals, season awards and a record book
+- Career depth: energy and a health bar for every player, a rival, owner goals, season awards and a record book
 - Career mode: 12 teams, an 11-game season, a four-team playoff and the Pixel Bowl
 - XP, level-ups and skill points, free agents, facility upgrades, a rookie draft, aging and retirement
 - Day, night, snow and rain games
