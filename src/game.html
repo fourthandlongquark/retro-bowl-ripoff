@@ -80,7 +80,7 @@ ul{margin:0;padding-left:20px}
 <div id="app">
   <header>
     <div class="logo">FOURTH <span>&amp;</span> LONG</div>
-    <div class="row"><span id="ver" class="dim"></span><button id="voiceBtn" class="sm">Announcer: on</button><button id="muteBtn" class="sm">Sound: on</button></div>
+    <div class="row"><span id="ver" class="dim"></span><button id="muteBtn" class="sm">Sound: on</button></div>
   </header>
 
   <div id="updBar" class="panel row" style="border-color:var(--gold)" hidden><span class="gold">A newer version of the game is out.</span><button id="btnUpd" class="go sm">Update now</button><span class="dim">Your saves are kept.</span></div>
@@ -112,7 +112,7 @@ ul{margin:0;padding-left:20px}
       <p><span class="gold">Kickoffs:</span> when you receive a kickoff you are the returner. Follow your blockers and run it back.</p>
       <p><span class="gold">Energy and injuries (career only):</span> a player who gets the ball every play gets tired, then slower. Every tackle also takes a little off his Health bar, more when he is tired, and health carries over from game to game. The Energy and Health bars on the play screen show who needs a breather. Spread the ball around.</p>
       <p><span class="gold">After a touchdown:</span> kick the extra point for 1, or go for 2 with a single play from the 2-yard line. The other team sometimes goes for 2 as well. When you are playing defense you can stop their try yourself, and block their kicks by stopping a needle in the green.</p>
-      <p><span class="gold">Momentum:</span> the bar under the scoreboard fills with first downs, big plays, stops and takeaways, and drains when things go wrong. Fill it and your team is ON FIRE: 4% faster until it cools off. Late in a close game it becomes clutch time, with the crowd and your heartbeat to match.</p>
+      <p><span class="gold">Momentum:</span> the bar under the scoreboard fills with first downs, big plays, stops and takeaways, and drains when things go wrong. Fill it and your team is ON FIRE: 4% faster until it cools off. Late in a close game it becomes clutch time, with a heartbeat to match.</p>
       <p><span class="gold">Celebrate:</span> press <kbd>G</kbd> right after a touchdown, a first down, a big gain, a sack or an interception to show off. Press it again for a different move.</p>
       <p><span class="gold">Career:</span> 11 games, a four-team playoff, and the Pixel Bowl. Every player has a level from 1 to 100 built from ratings like speed, diving and dodging, and earns XP to raise them, you earn money to buy better players and a bigger fan base, and you draft rookies every offseason.</p>
     </div>
@@ -257,20 +257,19 @@ function ac(){if(muted)return null;try{AC=AC||new(window.AudioContext||window.we
 function beep(f,d,type='square',v=.05,slide=0){const a=ac();if(!a)return;try{const o=a.createOscillator(),ga=a.createGain();o.type=type;o.frequency.setValueAtTime(f,a.currentTime);if(slide)o.frequency.linearRampToValueAtTime(Math.max(40,f+slide),a.currentTime+d);ga.gain.setValueAtTime(v,a.currentTime);ga.gain.exponentialRampToValueAtTime(.0001,a.currentTime+d);o.connect(ga);ga.connect(a.destination);o.start();o.stop(a.currentTime+d);}catch(e){}}
 function noise(d,v=.06,lp=1200){const a=ac();if(!a)return;try{const n=Math.floor(a.sampleRate*d),b=a.createBuffer(1,n,a.sampleRate),ch=b.getChannelData(0);for(let i=0;i<n;i++)ch[i]=(Math.random()*2-1)*(1-i/n);const s=a.createBufferSource(),ga=a.createGain(),f=a.createBiquadFilter();f.type='lowpass';f.frequency.value=lp;ga.gain.value=v;s.buffer=b;s.connect(f);f.connect(ga);ga.connect(a.destination);s.start();}catch(e){}}
 let amb=null,voiceOn=true;try{voiceOn=localStorage.getItem('fal_voice')!=='0';}catch(e){}
-function ambStart(){if(amb||muted)return;const a=ac();if(!a)return;try{const n=a.sampleRate*3,b=a.createBuffer(1,n,a.sampleRate),ch=b.getChannelData(0);let l=0;for(let i=0;i<n;i++){l=l*.985+(Math.random()*2-1)*.15;ch[i]=l*3;}
-    const src=a.createBufferSource();src.buffer=b;src.loop=true;const f=a.createBiquadFilter();f.type='bandpass';f.frequency.value=700;f.Q.value=.5;const ga=a.createGain();ga.gain.value=0;src.connect(f);f.connect(ga);ga.connect(a.destination);src.start();amb={src,ga,f};}catch(e){amb=null;}}
+function ambStart(){}
 function ambSet(v){if(!amb)return;try{amb.ga.gain.setTargetAtTime(muted?0:v,AC.currentTime,.35);}catch(e){}}
 function ambStop(){if(!amb)return;try{amb.ga.gain.setTargetAtTime(0,AC.currentTime,.2);const x=amb;setTimeout(()=>{try{x.src.stop();}catch(e){}},900);}catch(e){}amb=null;}
 function cheer(v=1,d=1.6){const a=ac();if(!a)return;try{const n=Math.floor(a.sampleRate*d),b=a.createBuffer(1,n,a.sampleRate),ch=b.getChannelData(0);let l=0;for(let i=0;i<n;i++){l=l*.97+(Math.random()*2-1)*.2;ch[i]=l*2.2;}
     const s=a.createBufferSource(),f=a.createBiquadFilter(),ga=a.createGain();s.buffer=b;f.type='bandpass';f.frequency.setValueAtTime(900,a.currentTime);f.frequency.linearRampToValueAtTime(1500,a.currentTime+d*.3);f.Q.value=.6;
-    ga.gain.setValueAtTime(.001,a.currentTime);ga.gain.linearRampToValueAtTime(.16*v,a.currentTime+.18);ga.gain.exponentialRampToValueAtTime(.001,a.currentTime+d);s.connect(f);f.connect(ga);ga.connect(a.destination);s.start();}catch(e){}}
+    ga.gain.setValueAtTime(.001,a.currentTime);ga.gain.linearRampToValueAtTime(.05*v,a.currentTime+.18);ga.gain.exponentialRampToValueAtTime(.001,a.currentTime+d);s.connect(f);f.connect(ga);ga.connect(a.destination);s.start();}catch(e){}}
 function groan(v=1){const a=ac();if(!a)return;try{const d=1.3,n=Math.floor(a.sampleRate*d),b=a.createBuffer(1,n,a.sampleRate),ch=b.getChannelData(0);let l=0;for(let i=0;i<n;i++){l=l*.99+(Math.random()*2-1)*.1;ch[i]=l*4;}
     const s=a.createBufferSource(),f=a.createBiquadFilter(),ga=a.createGain();s.buffer=b;f.type='lowpass';f.frequency.setValueAtTime(520,a.currentTime);f.frequency.linearRampToValueAtTime(220,a.currentTime+d);
-    ga.gain.setValueAtTime(.001,a.currentTime);ga.gain.linearRampToValueAtTime(.2*v,a.currentTime+.15);ga.gain.exponentialRampToValueAtTime(.001,a.currentTime+d);s.connect(f);f.connect(ga);ga.connect(a.destination);s.start();}catch(e){}}
-function thud(v=1){beep(90,.14,'sine',.2*v,-50);noise(.12,.14*v,600);}
+    ga.gain.setValueAtTime(.001,a.currentTime);ga.gain.linearRampToValueAtTime(.06*v,a.currentTime+.15);ga.gain.exponentialRampToValueAtTime(.001,a.currentTime+d);s.connect(f);f.connect(ga);ga.connect(a.destination);s.start();}catch(e){}}
+function thud(v=1){beep(90,.14,'sine',.14*v,-50);noise(.1,.07*v,500);}
 function organ(){[392,523,659,784,659,784].forEach((f,i)=>setTimeout(()=>beep(f,i===5?.4:.13,'triangle',.05),i*150));}
-function speak(t,pri){if(muted||!voiceOn)return;try{const ss=window.speechSynthesis;if(!ss||typeof SpeechSynthesisUtterance==='undefined')return;if(ss.speaking){if(!pri)return;ss.cancel();}const u=new SpeechSynthesisUtterance(t);u.rate=1.12;u.pitch=.9;u.volume=.9;ss.speak(u);}catch(e){}}
-function hush(){try{if(window.speechSynthesis)window.speechSynthesis.cancel();}catch(e){}}
+function speak(){}
+function hush(){}
 const SFX={snap:()=>{beep(150,.07,'sawtooth',.05);setTimeout(()=>beep(135,.09,'sawtooth',.06),90);},thr:()=>beep(540,.2,'triangle',.06,-280),cat:()=>beep(900,.07,'square',.05),hit:()=>thud(1),
  td:()=>{[523,659,784,1047,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,.15,'square',.05),i*110));cheer(1.3,2.6);},
  wh:()=>{beep(1850,.1,'sine',.04,90);setTimeout(()=>beep(1900,.18,'sine',.04,60),110);},bad:()=>beep(170,.35,'sawtooth',.05,-70),ui:()=>beep(660,.04,'square',.03),kick:()=>noise(.07,.14,500),good:()=>{beep(784,.12);setTimeout(()=>beep(1047,.2),120)},juke:()=>beep(420,.08,'triangle',.05,300)};
@@ -967,7 +966,7 @@ function frame(dt){
   if(G.slowT>0){G.slowT-=dt;dt*=.35;}
   if(!G.demo){ambStart();const cl=clutchNow();ambSet(.02+Math.min(.05,G.hype*.02)+((G.mo==null?50:G.mo)-50)*.0002+(cl?.02:0)+(G.state==='live'?.008:0));
     if(cl&&!G.clutch){G.clutch=true;banner('CLUTCH TIME','THIS IS THE GAME','#ff6257',1.5);speak('We have got a ball game, folks. This is clutch time.',true);cheer(.8,2);}
-    if(cl){G.hb=(G.hb||0)-dt;if(G.hb<=0){G.hb=.72;beep(58,.12,'sine',.16);setTimeout(()=>beep(50,.14,'sine',.11),150);}}}
+    if(cl){G.hb=(G.hb||0)-dt;if(G.hb<=0){G.hb=.72;beep(58,.12,'sine',.1);setTimeout(()=>beep(50,.14,'sine',.07),150);}}}
   if(G.state==='live')updateLive(dt);
   drawWorld(dt);
   if(G.state==='playcall')drawPlaycall();
@@ -1047,8 +1046,6 @@ $('#btnCel').addEventListener('click',celebrateNow);
 const updAuto=()=>{$('#btnAuto').textContent='Auto juke: '+(autoJuke?'on':'off');};updAuto();
 $('#btnAuto').addEventListener('click',()=>{autoJuke=!autoJuke;try{localStorage.setItem('fal_autojuke',autoJuke?'1':'0');}catch(e){}updAuto();});
 $('#muteBtn').addEventListener('click',()=>{muted=!muted;$('#muteBtn').textContent='Sound: '+(muted?'off':'on');if(muted){ambStop();hush();}});
-const updVoice=()=>{$('#voiceBtn').textContent='Announcer: '+(voiceOn?'on':'off');};updVoice();
-$('#voiceBtn').addEventListener('click',()=>{voiceOn=!voiceOn;try{localStorage.setItem('fal_voice',voiceOn?'1':'0');}catch(e){}if(!voiceOn)hush();updVoice();});
 
 /* ---------- screens ---------- */
 const SCREENS=['title','pick','hub','game','post','off'];
