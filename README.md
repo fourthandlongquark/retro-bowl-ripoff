@@ -22,7 +22,7 @@ To put it online, turn on GitHub Pages for this repo (Settings → Pages → dep
 | Pick a play (`M` deals other plays) | `1`–`4`, or click a card | Tap a card |
 | Snap | Any key (`Esc` changes the play) | Tap the field |
 | Throw a led pass | Click a receiver, or `1`–`4` | Tap a receiver |
-| Aim a throw yourself | After the snap, slide the cursor back, then click or press `Space` (no holding) | Drag back and release |
+| Aim a throw yourself | Hold and drag left anywhere, release to throw (further left = further throw) | Drag back and release |
 | Move | `WASD` / arrows | Drag the left side of the field |
 | Dive, or slide with the QB; dive tackle on defense | `F` or `Space` | Dive / Slide button |
 | Juke | `Shift` | Juke button |
